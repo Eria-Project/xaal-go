@@ -3,91 +3,64 @@ package message
 
 import (
 	"fmt"
-	"log"
+	"time"
+	"xaal-go/config"
 )
+
+// DataMessage : xAAL JSON Message struct
+type DataMessage struct {
+	Version   string `json:"version"`
+	Targets   string `json:"targets"`
+	Timestamp []int  `json:"timestamp"`
+	Payload   string `json:"payload"`
+}
 
 // Message : xAAL Message struct
 type Message struct {
-	Body      map[string]interface{} `json:"body"`   // message body
-	Header    messageHeader          `json:"header"` // dict used to store msg headers
-	Targets   []string
-	Timestamp []int  // message timestamp
-	Version   string // = config.STACK_VERSION  // message API version
+	Body   map[string]interface{} `json:"body,omitempty"` // message body
+	Header struct {
+		Source  string `json:"source"`
+		DevType string `json:"devType"`
+		MsgType string `json:"msgType"`
+		Action  string `json:"action"`
+	} `json:"header"` // dict used to store msg headers
+	Targets   []string `json:"-"`
+	Timestamp []int    `json:"-"` // message timestamp
+	Version   string   `json:"-"` // message API version
 }
 
-// messageHeader : xAAL Message Header struct
-type messageHeader struct {
-	Source  string `json:"source"`
-	DevType string `json:"devType"`
-	MsgType string `json:"msgType"`
-	Action  string `json:"action"`
+// New : Initiate a new Message struct
+func New() Message {
+	_config := config.GetConfig()
+	return Message{Version: _config.StackVersion, Targets: []string{}}
 }
 
 /*Dump : dump log a message */
 func (m Message) Dump() {
-	log.Printf("== Message (%p) ======================\n", &m)
-	log.Println("*****Header*****")
+	fmt.Printf("\n== Message (%p) ======================\n", &m)
+	fmt.Println(time.Now())
+	fmt.Println("*****Header*****")
 	if m.Header.DevType != "" {
-		log.Printf("devType \t%s\n", m.DevType())
+		fmt.Printf("devType \t%s\n", m.Header.DevType)
 	}
 	if m.Header.Action != "" {
-		log.Printf("action: \t%s\n", m.Action())
+		fmt.Printf("action: \t%s\n", m.Header.Action)
 	}
 	if m.Header.MsgType != "" {
-		log.Printf("msgType: \t%s\n", m.MsgType())
+		fmt.Printf("msgType: \t%s\n", m.Header.MsgType)
 	}
 	if m.Header.Source != "" {
-		log.Printf("source: \t%s\n", m.Source())
-		log.Printf("version: \t%s\n", m.Version)
-		log.Printf("targets: \t%s\n", m.Targets)
+		fmt.Printf("source: \t%s\n", m.Header.Source)
+		fmt.Printf("version: \t%s\n", m.Version)
+		fmt.Printf("targets: \t%s\n", m.Targets)
 	}
 	if len(m.Body) > 0 {
-		log.Println("*****Body*****")
+		fmt.Println("*****Body*****")
 		for k, v := range m.Body {
 			value := fmt.Sprint(v)
-			log.Printf("%s: \t%s\n", k, value)
+			fmt.Printf("%s: \t%s\n", k, value)
 		}
 	}
-}
-
-/*Source : Return message header source */
-func (m Message) Source() string {
-	return m.Header.Source
-}
-
-/*SetSource : Set the message header source */
-func (m Message) SetSource(source string) {
-	m.Header.Source = source
-}
-
-/*Action : Return message header action */
-func (m Message) Action() string {
-	return m.Header.Action
-}
-
-/*SetAction : Set the message header action */
-func (m Message) SetAction(action string) {
-	m.Header.Action = action
-}
-
-/*MsgType : Return message header msgType */
-func (m Message) MsgType() string {
-	return m.Header.MsgType
-}
-
-/*SetMsgType : Set the message header msgType */
-func (m Message) SetMsgType(msgType string) {
-	m.Header.MsgType = msgType
-}
-
-/*DevType : Return message header devType */
-func (m Message) DevType() string {
-	return m.Header.DevType
-}
-
-/*SetDevType : Set the message header devType */
-func (m Message) SetDevType(devType string) {
-	m.Header.DevType = devType
 }
 
 /*IsRequest : Return true if the message is a request */

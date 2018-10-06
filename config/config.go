@@ -9,14 +9,14 @@ import (
 
 /*XaalConfiguration : structure for xaal config file */
 type XaalConfiguration struct {
-	StackVersion string // TODO set default = "0.5"
+	StackVersion string // default = "0.5"
 	Interface    string
 	Address      string
 	Port         uint16
-	BindAddress  string
 	Hops         uint8
 	Key          string
 	CipherWindow uint16
+	AliveTimer   uint16
 }
 
 var instance *XaalConfiguration
@@ -30,6 +30,7 @@ func GetConfig() *XaalConfiguration {
 			panic(err)
 		}
 		instance = &config
+		instance.StackVersion = "0.5"
 	})
 	return instance
 }

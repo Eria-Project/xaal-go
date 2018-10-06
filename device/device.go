@@ -2,8 +2,9 @@ package device
 
 // Device : xAAL internal attributes for a device
 type Device struct {
-	devType string // xaal devtype
-	address string // xaal addr
+	DevType     string // xaal devtype
+	Address     string // xaal addr
+	alivePeriod int    // time in sec between two alive
 
 	/*
 		self.devtype = devtype          # xaal devtype
@@ -23,9 +24,6 @@ type Device struct {
 		self.unsupported_attributes = []
 		self.unsupported_methods = []
 		self.unsupported_notifications = []
-		# Alive management
-		self.alive_period = config.alive_timer # time in sec between two alive
-		self.next_alive = 0
 		# Default attributes & methods
 		self.__attributes = Attributes()
 		self.methods = {'getAttributes' : self._get_attributes,
@@ -34,22 +32,28 @@ type Device struct {
 	*/
 }
 
-/*DevType : Return device devType */
-func (d Device) DevType() string {
-	return d.devType
-}
-
 /*SetDevType : Set the device devType */
 func (d Device) SetDevType(devType string) {
-	d.devType = devType
-}
-
-/*Address : Return device address */
-func (d Device) Address() string {
-	return d.address
+	d.DevType = devType
 }
 
 /*SetAddress : Set the device address */
-func (d Device) SetAddress(address string) {
-	d.address = address
+func (d Device) SetAddress(address string) error {
+	if d.Address == "" {
+		d.Address = ""
+		return nil
+	}
+	/* TODO
+	   if not tools.is_valid_addr(value):
+	       raise DeviceError("This address is not valid")
+	   if value == config.XAAL_BCAST_ADDR:
+	       raise DeviceError("This address is reserved")
+	*/
+	d.Address = address
+	return nil
+}
+
+// GetTimeout : return Alive timeout used for isAlive msg
+func (d Device) GetTimeout() int {
+	return 2 * d.alivePeriod
 }
