@@ -2,8 +2,10 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os/user"
 	"sync"
 )
 
@@ -25,7 +27,13 @@ var once sync.Once
 /*GetConfig : Get the config instance*/
 func GetConfig() *XaalConfiguration {
 	once.Do(func() {
-		config, err := loadConfig("xaal.json")
+		usr, err := user.Current()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		configFile := fmt.Sprintf("%s/.xaal/xaal.json", usr.HomeDir)
+		config, err := loadConfig(configFile)
 		if err != nil {
 			panic(err)
 		}

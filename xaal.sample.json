@@ -1,0 +1,9 @@
+{
+	"Interface": "en1",
+    "Address": "224.0.29.200",
+	"Port": 1235,
+	"Hops": 5,
+	"AliveTimer": 500,
+	"CipherWindow": 60,
+	"Key": "6a40b7ba084b3cbd787fdfaf02ea32c2eae50c4c8f410c43e10d36fdb75b3670"
+}
