@@ -2,6 +2,7 @@ package tools
 
 import (
 	"encoding/hex"
+	"fmt"
 	"regexp"
 
 	"github.com/satori/go.uuid"
@@ -16,10 +17,9 @@ func IsValidAddr(val string) bool {
 		return false
 	}
 	re := regexp.MustCompile(xaalAddrPattern)
-	if re.MatchString(val) {
-		return true
-	}
-	return false
+	fmt.Println(val)
+	fmt.Println(re.MatchString(val))
+	return re.MatchString(val)
 }
 
 // GetRandomUUID : Generates a new xAAL UUID
