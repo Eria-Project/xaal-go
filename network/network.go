@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 
+	reuseport "github.com/kavu/go_reuseport"
 	"golang.org/x/net/ipv4"
 )
 
@@ -38,7 +39,7 @@ func Connect() {
 	log.Printf("Connecting to %s on %s\n", context, _ifaceName)
 
 	// open socket (connection)
-	_conn, err := net.ListenPacket("udp4", context)
+	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +49,7 @@ func Connect() {
 	log.Printf("Join Multicast Group %s\n", _address)
 	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
-	_dst = &net.UDPAddr{IP: group} // Set the destination address
+	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
 	if err := _pc.JoinGroup(iface, _dst); err != nil {
 		_conn.Close()
 		log.Fatal(err)
