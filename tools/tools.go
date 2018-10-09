@@ -2,7 +2,6 @@ package tools
 
 import (
 	"encoding/hex"
-	"fmt"
 	"regexp"
 
 	"github.com/satori/go.uuid"
@@ -10,6 +9,7 @@ import (
 )
 
 const xaalAddrPattern = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+const xaalDevTypePattern = "^[a-zA-Z][a-zA-Z0-9_-]*\\.[a-zA-Z][a-zA-Z0-9_-]*$"
 
 // IsValidAddr : Check is the xAAL address is valid
 func IsValidAddr(val string) bool {
@@ -17,8 +17,15 @@ func IsValidAddr(val string) bool {
 		return false
 	}
 	re := regexp.MustCompile(xaalAddrPattern)
-	fmt.Println(val)
-	fmt.Println(re.MatchString(val))
+	return re.MatchString(val)
+}
+
+// IsValidDevType : Check is the xAAL devType is valid
+func IsValidDevType(val string) bool {
+	if val == "" {
+		return false
+	}
+	re := regexp.MustCompile(xaalDevTypePattern)
 	return re.MatchString(val)
 }
 

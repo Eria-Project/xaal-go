@@ -55,3 +55,37 @@ func TestPass2key(t *testing.T) {
 		}
 	})
 }
+
+func TestIsValidDevType(t *testing.T) {
+	type args struct {
+		val string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Good device type",
+			args: args{val: "test.basic"},
+			want: true,
+		},
+		{
+			name: "Bad device type",
+			args: args{val: "testbasic"},
+			want: false,
+		},
+		{
+			name: "Empty string",
+			args: args{val: ""},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsValidDevType(tt.args.val); got != tt.want {
+				t.Errorf("IsValidDevType() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
