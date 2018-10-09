@@ -1,5 +1,12 @@
 package device
 
+import (
+	"errors"
+	"fmt"
+	"xaal-go/config"
+	"xaal-go/tools"
+)
+
 // Device : xAAL internal attributes for a device
 type Device struct {
 	DevType     string // xaal devtype
@@ -32,23 +39,28 @@ type Device struct {
 	*/
 }
 
-/*SetDevType : Set the device devType */
-func (d Device) SetDevType(devType string) {
+/*SetDevType : Set the device type */
+func (d *Device) SetDevType(devType string) error {
+	if !tools.IsValidDevType(devType) {
+		return fmt.Errorf("The devtype %s is not valid", devType)
+	}
 	d.DevType = devType
+	return nil
 }
 
 /*SetAddress : Set the device address */
-func (d Device) SetAddress(address string) error {
-	if d.Address == "" {
+func (d *Device) SetAddress(address string) error {
+	_config := config.GetConfig()
+	if address == "" {
 		d.Address = ""
 		return nil
 	}
-	/* TODO
-	   if not tools.is_valid_addr(value):
-	       raise DeviceError("This address is not valid")
-	   if value == config.XAAL_BCAST_ADDR:
-	       raise DeviceError("This address is reserved")
-	*/
+	if !tools.IsValidAddr(address) {
+		return fmt.Errorf("The address %s is not valid", address)
+	}
+	if address == _config.XAALBcastAddr {
+		return errors.New("The broadcast address is reserved")
+	}
 	d.Address = address
 	return nil
 }
