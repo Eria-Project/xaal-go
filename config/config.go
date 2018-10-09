@@ -11,18 +11,53 @@ import (
 
 /*XaalConfiguration : structure for xaal config file */
 type XaalConfiguration struct {
-	StackVersion string // default = "0.5"
-	Interface    string
-	Address      string
-	Port         uint16
-	Hops         uint8
-	Key          string
-	CipherWindow uint16
-	AliveTimer   uint16
+	StackVersion  string // protocol version
+	Interface     string
+	Address       string // mcast address
+	Port          uint16 // mcast port
+	Hops          uint8  // mcast hop
+	Key           string
+	CipherWindow  uint16 // Time Window in seconds to avoid replay attacks
+	AliveTimer    uint16 // Time between two alive msg
+	XAALBcastAddr string
 }
 
 var instance *XaalConfiguration
 var once sync.Once
+
+var defaultConfig = XaalConfiguration{
+	StackVersion:  "0.5",
+	Address:       "224.0.29.200",
+	Port:          1235,
+	Hops:          10,
+	CipherWindow:  120,
+	AliveTimer:    100,
+	XAALBcastAddr: "00000000-0000-0000-0000-000000000000",
+}
+
+func (c *XaalConfiguration) mergeDefault() {
+	if c.StackVersion == "" {
+		c.StackVersion = defaultConfig.StackVersion
+	}
+	if c.Address == "" {
+		c.Address = defaultConfig.Address
+	}
+	if c.Port == 0 {
+		c.Port = defaultConfig.Port
+	}
+	if c.Hops == 0 {
+		c.Hops = defaultConfig.Hops
+	}
+	if c.CipherWindow == 0 {
+		c.CipherWindow = defaultConfig.CipherWindow
+	}
+	if c.AliveTimer == 0 {
+		c.AliveTimer = defaultConfig.AliveTimer
+	}
+	if c.XAALBcastAddr == "" {
+		c.XAALBcastAddr = defaultConfig.XAALBcastAddr
+	}
+}
 
 /*GetConfig : Get the config instance*/
 func GetConfig() *XaalConfiguration {
@@ -38,7 +73,6 @@ func GetConfig() *XaalConfiguration {
 			panic(err)
 		}
 		instance = &config
-		instance.StackVersion = "0.5"
 	})
 	return instance
 }
@@ -48,14 +82,17 @@ func loadConfig(filename string) (XaalConfiguration, error) {
 	log.Printf("Loading config from %s", filename)
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return XaalConfiguration{}, err
+		return defaultConfig, err
 	}
 
 	var c XaalConfiguration
 	err = json.Unmarshal(bytes, &c)
 	if err != nil {
-		return XaalConfiguration{}, err
+		return defaultConfig, err
 	}
+
+	// Load default values
+	c.mergeDefault()
 
 	return c, nil
 }
