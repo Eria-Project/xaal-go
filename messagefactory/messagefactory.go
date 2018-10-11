@@ -172,6 +172,7 @@ func buildTimestamp() (int64, int64) {
 /*************
  MSG builder
 **************/
+
 // BuildMsg : the build method takes in parameters :
 // -A device
 // -The list of targets of the message
@@ -179,7 +180,7 @@ func buildTimestamp() (int64, int64) {
 // -The action of the message
 // -A body if it's necessary (None if not)
 // it will return a message encoded in Json and Ciphered.
-func BuildMsg(dev device.Device, targets []string, msgtype string, action string, body map[string]interface{}) []byte {
+func BuildMsg(dev *device.Device, targets []string, msgtype string, action string, body map[string]interface{}) []byte {
 	message := message.New()
 	message.Header.Source = dev.Address
 	message.Header.DevType = dev.DevType
@@ -206,7 +207,7 @@ func BuildMsg(dev device.Device, targets []string, msgtype string, action string
 
 // BuildAliveFor : Build Alive message for a given device
 // timeout = 0 is the minimum value
-func BuildAliveFor(dev device.Device, timeout int) []byte {
+func BuildAliveFor(dev *device.Device, timeout int) []byte {
 	body := make(map[string]interface{})
 	body["timeout"] = timeout
 	message := BuildMsg(dev, []string{}, "notify", "alive", body)
@@ -214,7 +215,7 @@ func BuildAliveFor(dev device.Device, timeout int) []byte {
 }
 
 // BuildErrorMsg : Build a Error message
-func BuildErrorMsg(dev device.Device, errcode int, description string) []byte {
+func BuildErrorMsg(dev *device.Device, errcode int, description string) []byte {
 	body := make(map[string]interface{})
 	body["code"] = errcode
 	if description != "" {

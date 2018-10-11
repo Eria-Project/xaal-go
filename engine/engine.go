@@ -20,16 +20,7 @@ func InitWithConfig() {
 
 /*Init : init the engine */
 func Init(ifaceName string, address string, port uint16, hops uint8, key string) {
-	_rxHandlers = append(_rxHandlers, handleRequest) // message receive wrOkflow
-	/*
-		self.timers = []                         # functions to call periodic
-		self.__last_timer = 0                    # last timer check
-
-		self.__attributesChange = []             # list of XAALAttributes instances
-		self.__txFifo = collections.deque()      # tx msg fifo
-		self.__alives = []                       # list of alive devices
-	*/
-
+	_rxHandlers = append(_rxHandlers, handleRequest) // message receive workflow
 	/* start network */
 	network.Init(ifaceName, address, port, hops)
 	/* start msg worker */
@@ -79,8 +70,8 @@ func Run() {
 // expected w/ the msg
 // - Filter on devTypes for isAlive request.
 // - Filter on device address
-func filterMsgForDevices(msg *message.Message, devices []device.Device) []device.Device {
-	var results []device.Device
+func filterMsgForDevices(msg *message.Message, devices []*device.Device) []*device.Device {
+	var results []*device.Device
 	if msg.IsAlive() {
 		/* TODO
 		if _, in := msg.Body["devTypes"]; in {
@@ -101,17 +92,18 @@ func filterMsgForDevices(msg *message.Message, devices []device.Device) []device
 		}
 		*/
 	} else {
-		if len(msg.Targets) == 0 { // if target list is empty == broadcast
-			results = devices
-		} else {
-			for i := 0; i < len(devices); i++ {
-				for i := range msg.Targets {
-					if msg.Targets[i] == devices[i].Address {
-						results = append(results, devices[i])
+		/*
+			if len(msg.Targets) == 0 { // if target list is empty == broadcast
+				results = devices
+			} else {
+				for i := 0; i < len(devices); i++ {
+					for i := range msg.Targets {
+						if msg.Targets[i] == devices[i].Address {
+							results = append(results, devices[i])
+						}
 					}
 				}
-			}
-		}
+			}*/
 	}
 	return results
 }

@@ -62,7 +62,7 @@ func handleRequest(msg *message.Message) {
 // processRequest by device and add related response
 // if reply necessary in the Tx fifo
 // Note: xAAL attributes change are managed separately
-func processRequest(msg *message.Message, targets []device.Device) {
+func processRequest(msg *message.Message, targets []*device.Device) {
 	for i := 0; i < len(targets); i++ {
 		target := targets[i]
 		if msg.Header.Action == "isAlive" {
@@ -79,7 +79,7 @@ func processRequest(msg *message.Message, targets []device.Device) {
 // - Errors are raised if an error occured:
 // 	* Internal error
 //	* error returned on the xAAL bus
-func handleMethodRequest(msg *message.Message, target device.Device) {
+func handleMethodRequest(msg *message.Message, target *device.Device) {
 	/*
 		try:
 			result = run_action(msg, target)
