@@ -3,7 +3,7 @@ package device
 import (
 	"errors"
 	"fmt"
-	"xaal-go/config"
+	configmanager "xaal-go/configManager"
 	"xaal-go/tools"
 )
 
@@ -50,7 +50,7 @@ func (d *Device) SetDevType(devType string) error {
 
 /*SetAddress : Set the device address */
 func (d *Device) SetAddress(address string) error {
-	_config := config.GetConfig()
+	_config := configmanager.GetXAALConfig()
 	if address == "" {
 		d.Address = ""
 		return nil

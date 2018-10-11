@@ -4,7 +4,7 @@ package message
 import (
 	"fmt"
 	"time"
-	"xaal-go/config"
+	configmanager "xaal-go/configManager"
 )
 
 // DataMessage : xAAL JSON Message struct
@@ -31,7 +31,7 @@ type Message struct {
 
 // New : Initiate a new Message struct
 func New() Message {
-	_config := config.GetConfig()
+	_config := configmanager.GetXAALConfig()
 	return Message{Version: _config.StackVersion, Targets: []string{}}
 }
 

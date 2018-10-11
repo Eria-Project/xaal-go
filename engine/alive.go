@@ -4,7 +4,7 @@ package engine
 import (
 	"log"
 	"time"
-	"xaal-go/config"
+	configmanager "xaal-go/configManager"
 	"xaal-go/device"
 	"xaal-go/messagefactory"
 )
@@ -35,7 +35,7 @@ func SendIsAlive(dev device.Device, devTypes string) {
 
 // processAlives : Periodic sending alive messages
 func processAlives() {
-	_config := config.GetConfig()
+	_config := configmanager.GetXAALConfig()
 	_tickerAlive = time.NewTicker(time.Duration(_config.AliveTimer) * time.Second)
 	go func() {
 		log.Println("Send initial alive messages")
