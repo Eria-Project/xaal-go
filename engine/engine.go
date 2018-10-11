@@ -59,7 +59,7 @@ func Run() {
 	/* Process attributes change for devices*/
 	//TODO	self.process_attributesChange()
 	/* Process timers */
-	//TODO	self.process_timers()
+	go processTimers()
 	// Process Alives
 	go processAlives()
 	<-_running // Listen the channel to stop
