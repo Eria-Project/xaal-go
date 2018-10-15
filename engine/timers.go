@@ -55,28 +55,4 @@ func processTimers() {
 	for _, t := range timers {
 		go t.start()
 	}
-	/*
-	   	now = time.time()
-	   	// little hack to avoid to check timer to often.
-	   	// w/ this enable timer precision is bad, but far enougth
-	   	if (now - self.__last_timer) < 0.4: return
-
-	   	for t in self.timers:
-	   		if t.deadline < now:
-	   			try:
-	   				t.func()
-	   			except CallbackError as e:
-	   				logger.error(e.description)
-	   			if (t.repeat != -1):
-	   				t.repeat = t.repeat-1
-	   				if t.repeat == 0:
-	   					expire_list.append(t)
-	   			t.deadline = now + t.period
-	   	// delete expired timers
-	   	for t in expire_list:
-	   		self.remove_timer(t)
-
-	   	self.__last_timer = now
-	   }
-	*/
 }
