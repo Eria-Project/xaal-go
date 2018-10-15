@@ -25,10 +25,10 @@ import (
 var _cipherKey []byte
 var _config = configmanager.GetXAALConfig()
 
-// Init : Initialise with cipher key
-func Init(cipherKey string) {
+// init : Initialise and decode the cipher key
+func init() {
 	var err error
-	_cipherKey, err = hex.DecodeString(cipherKey) // key encode / decode message built from passphrase
+	_cipherKey, err = hex.DecodeString(_config.Key) // key encode / decode message built from passphrase
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -5,7 +5,6 @@ import (
 	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/message"
-	"xaal-go/messagefactory"
 	"xaal-go/network"
 )
 
@@ -23,8 +22,6 @@ func Init(ifaceName string, address string, port uint16, hops uint8, key string)
 	_rxHandlers = append(_rxHandlers, handleRequest) // message receive workflow
 	/* start network */
 	network.Init(ifaceName, address, port, hops)
-	/* start msg worker */
-	messagefactory.Init(key)
 }
 
 /*******************
