@@ -57,7 +57,7 @@ func Run() {
 	/* Process xAAL msgs to send */
 	go processTxMsg()
 	/* Process attributes change for devices*/
-	//TODO	self.process_attributesChange()
+	go processAttributesChange()
 	/* Process timers */
 	go processTimers()
 	// Process Alives
