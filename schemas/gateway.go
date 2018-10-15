@@ -2,17 +2,11 @@ package schemas
 
 import (
 	"xaal-go/device"
-	"xaal-go/tools"
 )
 
 // Gateway : Simple gateway that manage physical devices
-func Gateway(addr string) device.Device {
-	if addr == "" {
-		addr = tools.GetRandomUUID()
-	}
-
-	dev := device.Device{
-		DevType: "gateway.basic", Address: addr}
+func Gateway(addr string) *device.Device {
+	dev, _ := device.New("gateway.basic", addr)
 
 	// -- Attributes --
 	// Embeded devices

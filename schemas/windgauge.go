@@ -2,16 +2,11 @@ package schemas
 
 import (
 	"xaal-go/device"
-	"xaal-go/tools"
 )
 
 // Windgauge : Simple windgauge
-func Windgauge(addr string) device.Device {
-	if addr == "" {
-		addr = tools.GetRandomUUID()
-	}
-	dev := device.Device{
-		DevType: "windgauge.basic", Address: addr}
+func Windgauge(addr string) *device.Device {
+	dev, _ := device.New("windgauge.basic", addr)
 
 	// -- Attributes --
 	// Strength of the wind
