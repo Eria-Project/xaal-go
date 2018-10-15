@@ -2,6 +2,9 @@
 package engine
 
 import (
+	"log"
+	"xaal-go/device"
+	"xaal-go/messagefactory"
 	"xaal-go/network"
 )
 
@@ -38,8 +41,12 @@ def send_get_attributes(self,dev,targets):
 """queue a getAttributes request"""
 self.send_request(dev,targets,'getAttributes')
 
-def send_notification(self,dev,action,body=None):
-msg = self.msg_factory.build_msg(dev,[],"notify",action,body)
-self.queue_msg(msg)
-
 */
+
+func sendNotification(dev *device.Device, action string, body map[string]interface{}) {
+	msg, err := messagefactory.BuildMsg(dev, []string{}, "notify", action, body)
+	if err != nil {
+		log.Println("Error while building message")
+	}
+	_queueMsgTx <- msg
+}
