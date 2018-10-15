@@ -2,14 +2,14 @@ package engine
 
 import (
 	"log"
-	configmanager "xaal-go/configManager"
+	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/message"
 	"xaal-go/messagefactory"
 	"xaal-go/network"
 )
 
-var _config configmanager.XaalConfiguration
+var _config = configmanager.GetXAALConfig()
 
 /*InitWithConfig : init the engine using the config file parameters */
 func InitWithConfig() {

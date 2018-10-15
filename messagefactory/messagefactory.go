@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"log"
 	"time"
-	configmanager "xaal-go/configManager"
+	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/message"
 	"xaal-go/tools"
@@ -23,7 +23,7 @@ import (
 )
 
 var _cipherKey []byte
-var _config *configmanager.XaalConfiguration
+var _config = configmanager.GetXAALConfig()
 
 // Init : Initialise with cipher key
 func Init(cipherKey string) {
@@ -32,8 +32,6 @@ func Init(cipherKey string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	_config = configmanager.GetXAALConfig()
 }
 
 // EncodeMsg : Apply security layer and return encode MSG in Json

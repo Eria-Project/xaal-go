@@ -4,7 +4,7 @@ package engine
 import (
 	"log"
 	"time"
-	configmanager "xaal-go/configManager"
+	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/messagefactory"
 )
