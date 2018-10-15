@@ -16,7 +16,10 @@ var _tickerAlive *time.Ticker
 // SendAlive : Send a Alive message for a given device
 func SendAlive(dev *device.Device) {
 	timeout := dev.GetTimeout()
-	msg := messagefactory.BuildAliveFor(dev, timeout)
+	msg, err := messagefactory.BuildAliveFor(dev, timeout)
+	if err != nil {
+		log.Println("Error while building message")
+	}
 	_queueMsgTx <- msg
 }
 
@@ -31,7 +34,10 @@ func sendAlives() {
 func SendIsAlive(dev *device.Device, devTypes string) {
 	body := make(map[string]interface{})
 	body["devTypes"] = devTypes
-	msg := messagefactory.BuildMsg(dev, []string{}, "request", "isAlive", body)
+	msg, err := messagefactory.BuildMsg(dev, []string{}, "request", "isAlive", body)
+	if err != nil {
+		log.Println("Error while building message")
+	}
 	_queueMsgTx <- msg
 }
 
