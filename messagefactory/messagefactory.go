@@ -40,6 +40,10 @@ func init() {
 // :return: return an xAAL msg ciphered and serialized in json
 // :rtype: json
 func EncodeMsg(msg message.Message) ([]byte, error) {
+	return encodeMsg(msg, nowFunc)
+}
+
+func encodeMsg(msg message.Message, nowTime func() time.Time) ([]byte, error) {
 	var result message.DataMessage
 
 	// Format data msg to send
@@ -59,7 +63,7 @@ func EncodeMsg(msg message.Message) ([]byte, error) {
 
 	// Payload Ciphering: ciph
 	ad := []byte(result.Targets) // Additionnal Data == json serialization of the targets array
-	nonce := buildNonce(msg.Timestamp)
+	nonce, _ := buildNonce(msg.Timestamp)
 	// chacha20 ciphering
 	aead, err := chacha20poly1305.New(_cipherKey)
 	if err != nil {
@@ -76,7 +80,6 @@ func EncodeMsg(msg message.Message) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Cannot encode message to JSON: %v", err)
 	}
-	// TODO return codecs.encode(message)*/
 	return message, nil
 }
 
@@ -86,6 +89,10 @@ func EncodeMsg(msg message.Message) ([]byte, error) {
 // :return: xAAL msg
 // :rtype: Message
 func DecodeMsg(data []byte) (*message.Message, error) {
+	return decodeMsg(data, nowFunc)
+}
+
+func decodeMsg(data []byte, nowTime func() time.Time) (*message.Message, error) {
 	//	fmt.Println(string(data[:len(data)])) // FOR DEBUG
 	// Decode json incoming data
 	var dataRx = new(message.DataMessage)
@@ -102,18 +109,18 @@ func DecodeMsg(data []byte) (*message.Message, error) {
 	var msgTime = dataRx.Timestamp[0]
 
 	// Replay attack, window fixed to CIPHER_WINDOW in seconds
-	now, _ := buildTimestamp() // test done only on seconds ...
+	now, _ := buildTimestamp(nowTime) // test done only on seconds ...
 
 	if int64(msgTime) < (now - int64(_config.CipherWindow)) {
-		log.Fatalf("Potential replay attack, message too old: %d sec", now-int64(msgTime))
+		return nil, fmt.Errorf("Potential replay attack, message too old: %d sec", now-int64(msgTime))
 	}
 	if int64(msgTime) > (now + int64(_config.CipherWindow)) {
-		log.Fatalf("Potential replay attack, message too young: %d sec", now-int64(msgTime))
+		return nil, fmt.Errorf("Potential replay attack, message too young: %d sec", now-int64(msgTime))
 	}
 
 	// Payload De-Ciphering
 	ad := []byte(dataRx.Targets) // Additional Data
-	nonce := buildNonce(dataRx.Timestamp)
+	nonce, _ := buildNonce(dataRx.Timestamp)
 
 	var ciph []byte
 
@@ -147,24 +154,30 @@ func DecodeMsg(data []byte) (*message.Message, error) {
 	if !tools.IsValidAddr(msg.Header.Source) {
 		return nil, fmt.Errorf("Wrong message source [%s]", msg.Header.Source)
 	}
-
 	return msg, nil
 }
 
 /*buildNonce : pack time using Big-Endian, time in seconds and time in microseconds */
-func buildNonce(data []int) []byte {
+func buildNonce(data []int) ([]byte, error) {
+	if data == nil {
+		return nil, errors.New("Can't build nouce for empty data")
+	}
 	nonce := make([]byte, 12)
 	binary.BigEndian.PutUint64(nonce[0:], uint64(data[0]))
 	binary.BigEndian.PutUint32(nonce[8:], uint32(data[1]))
-	return nonce
+	return nonce, nil
 }
 
 /*buildTimestamp : Return seconds since epoch, microseconds since last seconds Time = UTC+0000*/
-func buildTimestamp() (int64, int64) {
-	now := time.Now().UTC()
+func buildTimestamp(nowTime func() time.Time) (int64, int64) {
+	now := nowTime()
 	secs := now.Unix()
 	micros := (now.UnixNano() / 1000) - (secs * 1000000)
 	return secs, micros
+}
+
+func nowFunc() time.Time {
+	return time.Now().UTC()
 }
 
 /*************
@@ -178,47 +191,47 @@ func buildTimestamp() (int64, int64) {
 // -The action of the message
 // -A body if it's necessary (None if not)
 // it will return a message encoded in Json and Ciphered.
-func BuildMsg(dev *device.Device, targets []string, msgtype string, action string, body map[string]interface{}) []byte {
-	message := message.New()
-	message.Header.Source = dev.Address
-	message.Header.DevType = dev.DevType
-	message.Targets = targets
-	secs, micros := buildTimestamp()
-	message.Timestamp = []int{int(secs), int(micros)}
+func BuildMsg(dev *device.Device, targets []string, msgtype string, action string, body map[string]interface{}) ([]byte, error) {
+	return buildMsg(dev, targets, msgtype, action, body, nowFunc)
+}
+func buildMsg(dev *device.Device, targets []string, msgtype string, action string, body map[string]interface{}, nowTime func() time.Time) ([]byte, error) {
+	msg := message.New()
+	msg.Header.Source = dev.Address
+	msg.Header.DevType = dev.DevType
+	msg.Targets = targets
+	secs, micros := buildTimestamp(nowTime)
+	msg.Timestamp = []int{int(secs), int(micros)}
 
 	if msgtype != "" {
-		message.Header.MsgType = msgtype
+		msg.Header.MsgType = msgtype
 	}
 	if action != "" {
-		message.Header.Action = action
+		msg.Header.Action = action
 	}
 	if body != nil && len(body) > 0 {
-		message.Body = body
+		msg.Body = body
 	}
-	data, err := EncodeMsg(message)
+	data, err := encodeMsg(msg, nowTime)
 	if err != nil {
-		log.Printf("EncodeMsg error: %v", err)
-		return nil
+		return nil, fmt.Errorf("EncodeMsg error: %v", err)
 	}
-	return data
+	return data, nil
 }
 
 // BuildAliveFor : Build Alive message for a given device
 // timeout = 0 is the minimum value
-func BuildAliveFor(dev *device.Device, timeout int) []byte {
+func BuildAliveFor(dev *device.Device, timeout int) ([]byte, error) {
 	body := make(map[string]interface{})
 	body["timeout"] = timeout
-	message := BuildMsg(dev, []string{}, "notify", "alive", body)
-	return message
+	return BuildMsg(dev, []string{}, "notify", "alive", body)
 }
 
 // BuildErrorMsg : Build a Error message
-func BuildErrorMsg(dev *device.Device, errcode int, description string) []byte {
+func BuildErrorMsg(dev *device.Device, errcode int, description string) ([]byte, error) {
 	body := make(map[string]interface{})
 	body["code"] = errcode
 	if description != "" {
 		body["description"] = description
 	}
-	message := BuildMsg(dev, []string{}, "notify", "error", body)
-	return message
+	return BuildMsg(dev, []string{}, "notify", "error", body)
 }
