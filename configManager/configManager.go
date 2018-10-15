@@ -12,7 +12,6 @@ import (
 /*XaalConfiguration : structure for xaal config file */
 type XaalConfiguration struct {
 	StackVersion  string // protocol version
-	Interface     string
 	Address       string // mcast address
 	Port          uint16 // mcast port
 	Hops          uint8  // mcast hop

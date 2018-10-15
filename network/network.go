@@ -29,30 +29,60 @@ func Init(ifaceName string, address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	iface, err := net.InterfaceByName(_ifaceName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	context := fmt.Sprintf("0.0.0.0:%d", _port)
 
-	log.Printf("Connecting to %s on %s\n", context, _ifaceName)
+	log.Printf("Connecting to %s...\n", context)
 
 	// open socket (connection)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Connected to %s on %s\n", context, _ifaceName)
+	log.Printf("Connected to %s\n", context)
 
 	// join multicast address
-	log.Printf("Join Multicast Group %s\n", _address)
+	log.Printf("Joining Multicast Groups...for %s\n", _address)
 	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
 	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
-	if err := _pc.JoinGroup(iface, _dst); err != nil {
-		_conn.Close()
-		log.Fatal(err)
+	ifaces, _ := net.Interfaces()
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 {
+			continue // interface down
+		}
+		if iface.Flags&net.FlagMulticast == 0 {
+			continue // not multicast interface
+		}
+		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagBroadcast != 0 { // Loopback or Broadcast
+			addrs, err := iface.Addrs()
+			if err != nil {
+				log.Fatal(fmt.Errorf("localaddresses: %+v", err.Error()))
+				continue
+			}
+			if len(addrs) > 0 {
+				for _, addr := range addrs {
+					var ip net.IP
+					switch v := addr.(type) {
+					case *net.IPAddr:
+						ip = v.IP
+					case *net.IPNet:
+						ip = v.IP
+					}
+					if ip == nil {
+						continue
+					}
+					ip = ip.To4()
+					if ip == nil {
+						continue // not an ipv4 address
+					}
+					if err := _pc.JoinGroup(&iface, _dst); err != nil {
+						_conn.Close()
+						log.Fatal(err)
+					}
+					log.Printf("Joined Multicast group on %v : %s\n", iface.Name, ip)
+				}
+			}
+		}
 	}
 
 	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {

@@ -1,5 +1,4 @@
 {
-	"Interface": "en1",
     "Address": "224.0.29.200",
 	"Port": 1235,
 	"Hops": 5,
