@@ -19,16 +19,9 @@ type Device struct {
 	Version     string // product release
 	URL         string // product URL
 	Info        string // additionnal info
-
 	/*
-		self.devtype = devtype          # xaal devtype
-		self.address = addr             # xaal addr
 		self.hw_id = None               # hardware info
 		self.group_id = None            # group devices
-		# Some useless attributes, only for compatibility
-		self.bus_addr = config.address
-		self.bus_port = config.port
-		self.hops = config.hops
 	*/
 	// Unsupported stuffs
 	unsupportedAttributes []string
@@ -36,22 +29,37 @@ type Device struct {
 	//	unsupportedNotifications = []
 
 	// Default attributes & methods
-	attributes []Attribute
-	/*
-		self.methods = {'getAttributes' : self._get_attributes,
-						'getDescription': self._get_description }
-		self.engine = engine
-	*/
+	Attributes map[string]*Attribute
+
+	// self.engine = engine
 }
 
-// Attribute : xAAL internal attributes
-type Attribute struct {
-	name         string
-	defaultValue interface{}
-	value        interface{}
+// New : device constructor
+func New(devType string, address string) (*Device, error) {
+	if !tools.IsValidDevType(devType) {
+		return nil, fmt.Errorf("The devtype %s is not valid", devType)
+	}
+	if address == "" {
+		address = tools.GetRandomUUID()
+	} else {
+		if !tools.IsValidAddr(address) {
+			return nil, fmt.Errorf("The address %s is not valid", address)
+		}
+		if address == _config.XAALBcastAddr {
+			return nil, errors.New("The broadcast address is reserved")
+		}
+	}
+
+	device := Device{
+		DevType:    devType,
+		Address:    address,
+		Attributes: make(map[string]*Attribute),
+	}
+	return &device, nil
 }
 
-/*SetDevType : Set the device type */
+// SetDevType : Set the device type
+// TO REMOVE ??
 func (d *Device) SetDevType(devType string) error {
 	if !tools.IsValidDevType(devType) {
 		return fmt.Errorf("The devtype %s is not valid", devType)
@@ -77,72 +85,6 @@ func (d *Device) SetAddress(address string) error {
 }
 
 // GetTimeout : return Alive timeout used for isAlive msg
-func (d Device) GetTimeout() int {
+func (d *Device) GetTimeout() int {
 	return 2 * d.alivePeriod
 }
-
-// ---------------- attributes ----------------
-
-// NewAttribute : Create a new attribute
-func (d *Device) NewAttribute(name string, defaultValue interface{}) Attribute {
-	attr := Attribute{
-		name:         name,
-		defaultValue: defaultValue,
-	}
-	d.AddAttribute(&attr)
-	return attr
-}
-
-// AddAttribute : Add the attribute to the device list of attributes
-func (d *Device) AddAttribute(attr *Attribute) {
-	if attr != nil {
-		// TODO attr.device = self
-		d.attributes = append(d.attributes, *attr)
-	}
-}
-
-// AddUnsupportedAttribute : Add the attribute string to the list of unsupported
-func (d *Device) AddUnsupportedAttribute(name string) {
-	d.unsupportedAttributes = append(d.unsupportedAttributes, name)
-	d.DelAttribute(name)
-}
-
-// DelAttribute : Remove the attribute from device list of attributes
-func (d *Device) DelAttribute(name string) error {
-	if name != "" {
-		// Find element index
-		i := d.findAttributeIndex(name)
-		if i > -1 {
-			// Delete index (See https://github.com/golang/go/wiki/SliceTricks)
-			d.attributes = append(d.attributes[:i], d.attributes[i+1:]...)
-			return nil
-		}
-	}
-	return errors.New("Attribute not found")
-}
-
-// SetAttributeValue : Set the attribute value
-func (d *Device) SetAttributeValue(name string, value interface{}) {
-	// Search element index
-	i := d.findAttributeIndex(name)
-	if i > -1 {
-		d.attributes[i].value = value
-	}
-}
-
-func (d *Device) findAttributeIndex(name string) int {
-	for i, e := range d.attributes {
-		if e.name == name {
-			return i
-		}
-	}
-	return -1
-}
-
-/*
-def get_attribute(self,name):
-	for attr in self.__attributes:
-		if attr.name == name:
-			return attr
-	return None
-*/
