@@ -19,8 +19,7 @@ var _pc *ipv4.PacketConn
 var _dst *net.UDPAddr
 
 /*Init : init the network */
-func Init(ifaceName string, address string, port uint16, hops uint8) {
-	_ifaceName = ifaceName
+func Init(address string, port uint16, hops uint8) {
 	_address = address
 	_port = port
 	_hops = hops

@@ -12,14 +12,14 @@ var _config = configmanager.GetXAALConfig()
 
 /*InitWithConfig : init the engine using the config file parameters */
 func InitWithConfig() {
-	Init(_config.Interface, _config.Address, _config.Port, _config.Hops)
+	Init(_config.Address, _config.Port, _config.Hops)
 }
 
 /*Init : init the engine */
-func Init(ifaceName string, address string, port uint16, hops uint8) {
+func Init(address string, port uint16, hops uint8) {
 	_rxHandlers = append(_rxHandlers, handleRequest) // message receive workflow
 	/* start network */
-	network.Init(ifaceName, address, port, hops)
+	network.Init(address, port, hops)
 }
 
 /*******************
