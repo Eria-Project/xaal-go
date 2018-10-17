@@ -1,12 +1,21 @@
 package engine
 
 import (
-	"log"
 	"xaal-go/configmanager"
 	"xaal-go/device"
+	"xaal-go/log"
 	"xaal-go/message"
 	"xaal-go/network"
 )
+
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	//	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	//log.SetOutput(os.Stdout)
+}
 
 var _config = configmanager.GetXAALConfig()
 
@@ -40,7 +49,7 @@ func start() {
 
 // Stop all mainloops
 func Stop() {
-	log.Println("Stopping...")
+	log.Info("Stopping...", log.Fields{"-module": "engine"})
 	close(_queueMsgTx)
 	_tickerAlive.Stop() // Stop Alives
 	_running <- false
@@ -60,7 +69,7 @@ func Run() {
 	// Process Alives
 	go processAlives()
 	<-_running // Listen the channel to stop
-	log.Println("Stopped")
+	log.Info("Stopped", log.Fields{"-module": "engine"})
 }
 
 // loop throught the devices, to find which are

@@ -2,14 +2,14 @@ package network
 
 import (
 	"fmt"
-	"log"
 	"net"
+
+	"xaal-go/log"
 
 	reuseport "github.com/kavu/go_reuseport"
 	"golang.org/x/net/ipv4"
 )
 
-var _ifaceName string
 var _address string
 var _port uint16
 var _hops uint8
@@ -28,19 +28,18 @@ func Init(address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	context := fmt.Sprintf("0.0.0.0:%d", _port)
-
-	log.Printf("Connecting to %s...\n", context)
+	log.Info("Connecting...", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
 
 	// open socket (connection)
+	context := fmt.Sprintf("0.0.0.0:%d", _port)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Cannot open UDP4 socket", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port, "err": err})
 	}
-	log.Printf("Connected to %s\n", context)
+	log.Info("Connected", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
 
 	// join multicast address
-	log.Printf("Joining Multicast Groups...for %s\n", _address)
+	log.Info("Joining Multicast Group...", log.Fields{"-module": "network", "multicastaddr": _address})
 	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
 	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
@@ -55,8 +54,7 @@ func Connect() {
 		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagBroadcast != 0 { // Loopback or Broadcast
 			addrs, err := iface.Addrs()
 			if err != nil {
-				log.Fatal(fmt.Errorf("localaddresses: %+v", err.Error()))
-				continue
+				log.Fatal("Cannot list iface addresses", log.Fields{"-module": "network", "err": err})
 			}
 			if len(addrs) > 0 {
 				for _, addr := range addrs {
@@ -75,10 +73,9 @@ func Connect() {
 						continue // not an ipv4 address
 					}
 					if err := _pc.JoinGroup(&iface, _dst); err != nil {
-						_conn.Close()
-						log.Fatal(err)
+						log.Warn("Cannot join multicat group", log.Fields{"-module": "network", "iface": iface.Name, "err": err})
 					}
-					log.Printf("Joined Multicast group on %v : %s\n", iface.Name, ip)
+					log.Info("Joined Multicast group", log.Fields{"-module": "network", "iface": iface.Name, "ip": ip})
 				}
 			}
 		}
@@ -86,24 +83,15 @@ func Connect() {
 
 	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {
 		_conn.Close()
-		log.Fatal(err)
+		log.Fatal("Cannot set connection flags", log.Fields{"-module": "network", "err": err})
 	}
 	//	_pc.SetTTL(128)
-
-	/*
-		self.__sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM,socket.IPPROTO_UDP)
-		self.__sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.__sock.bind((self.bind_addr, self.port))
-		mreq = struct.pack('4sl',socket.inet_aton(self.addr),socket.INADDR_ANY)
-		self.__sock.setsockopt(socket.IPPROTO_IP,socket.IP_ADD_MEMBERSHIP,mreq)
-		self.__sock.setsockopt(socket.IPPROTO_IP,socket.IP_MULTICAST_TTL,self.hops)
-	*/
 	_stateConnected = true
 }
 
 /*Disconnect : Disconnect the network */
 func Disconnect() {
-	log.Println("Disconnecting from the bus")
+	log.Info("Disconnecting socket", log.Fields{"-module": "network"})
 	_stateConnected = false
 	_conn.Close()
 }
@@ -114,7 +102,7 @@ func IsConnected() bool {
 }
 
 func receive() ([]byte, error) {
-	log.Printf("UDP: reading from '%s' on '%s'", _address, _ifaceName)
+	log.Debug("UDP: reading bytes...", log.Fields{"-module": "network"})
 	packt := make([]byte, 10000)
 	n, cm, _, err := _pc.ReadFrom(packt)
 	if err != nil {
@@ -123,7 +111,7 @@ func receive() ([]byte, error) {
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	log.Printf("UDP: recv %d bytes from %s to %s on %s", n, cm.Src, cm.Dst, _ifaceName)
+	log.Debug("UDP: recv bytes", log.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
@@ -139,7 +127,7 @@ func send(data []byte) error {
 func GetData() []byte {
 	data, err := receive()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("Cannot receive data", log.Fields{"-module": "network", "err": err})
 	}
 	return data
 }
@@ -148,6 +136,6 @@ func GetData() []byte {
 func SendData(data []byte) {
 	err := send(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Cannot send data", log.Fields{"-module": "network", "err": err})
 	}
 }

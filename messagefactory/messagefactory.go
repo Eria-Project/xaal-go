@@ -12,12 +12,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/message"
 	"xaal-go/tools"
+
+	"xaal-go/log"
 
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -30,7 +31,7 @@ func init() {
 	var err error
 	_cipherKey, err = hex.DecodeString(_config.Key) // key encode / decode message built from passphrase
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Cannot decode cipher key", log.Fields{"-module": "messagefactory", "err": err})
 	}
 }
 

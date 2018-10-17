@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os/user"
 	"sync"
+
+	"xaal-go/log"
 )
 
 /*XaalConfiguration : structure for xaal config file */
@@ -38,13 +39,13 @@ func GetXAALConfig() *XaalConfiguration {
 	once.Do(func() {
 		usr, err := user.Current()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Cannot access user home", log.Fields{"-module": "configmanager", "err": err})
 		}
 
 		configFile := fmt.Sprintf("%s/.xaal/xaal.json", usr.HomeDir)
 		err = LoadConfig(configFile, &config)
 		if err != nil {
-			panic(err)
+			log.Fatal("Cannot load config file", log.Fields{"-module": "configmanager", "err": err})
 		}
 	})
 	return &config
@@ -52,7 +53,7 @@ func GetXAALConfig() *XaalConfiguration {
 
 // LoadConfig : Load config from file
 func LoadConfig(filename string, s interface{}) error {
-	log.Printf("Loading config from %s", filename)
+	log.Info("Loading config", log.Fields{"-module": "configmanager", "file": filename})
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		// TODO What to do if file doesn't exists

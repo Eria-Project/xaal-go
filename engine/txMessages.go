@@ -2,10 +2,11 @@
 package engine
 
 import (
-	"log"
 	"xaal-go/device"
 	"xaal-go/messagefactory"
 	"xaal-go/network"
+
+	"xaal-go/log"
 )
 
 var _queueMsgTx = make(chan []byte)
@@ -46,7 +47,7 @@ self.send_request(dev,targets,'getAttributes')
 func sendNotification(dev *device.Device, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "notify", action, body)
 	if err != nil {
-		log.Println("Error while building message")
+		log.Info("Cannot build notify message", log.Fields{"-module": "engine"})
 	}
 	_queueMsgTx <- msg
 }

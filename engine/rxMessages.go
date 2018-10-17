@@ -2,11 +2,12 @@
 package engine
 
 import (
-	"log"
 	"xaal-go/device"
 	"xaal-go/message"
 	"xaal-go/messagefactory"
 	"xaal-go/network"
+
+	"xaal-go/log"
 )
 
 var _rxHandlers []func(*message.Message)
@@ -37,7 +38,7 @@ func processRxMsg() {
 		if data != nil {
 			msg, err := messagefactory.DecodeMsg(data)
 			if err != nil {
-				log.Println(err)
+				log.Error("Cannot decode message", log.Fields{"-module": "engine", "err": err})
 			}
 			if msg != nil {
 				for i := 0; i < len(_rxHandlers); i++ {
