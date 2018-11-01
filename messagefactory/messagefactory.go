@@ -146,6 +146,8 @@ func decodeMsg(data []byte, nowTime func() time.Time) (*message.Message, error) 
 		return nil, fmt.Errorf("Failed to decrypt or authenticate message: %v", err)
 	}
 
+	msg.Raw = string(decoded) // TO REMOVE
+
 	// Unpack Json
 	if err := json.Unmarshal(decoded, &msg); err != nil {
 		return nil, fmt.Errorf("Unable to parse JSON data in payload after decrypt: %v", err)

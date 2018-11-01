@@ -3,6 +3,7 @@ package message
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"xaal-go/configmanager"
 )
@@ -24,6 +25,7 @@ type Message struct {
 	Targets   []string               `json:"-"`
 	Timestamp []int                  `json:"-"` // message timestamp
 	Version   string                 `json:"-"` // message API version
+	Raw       string
 }
 
 // Header : xAAL Message Header struct
@@ -39,32 +41,35 @@ func New() Message {
 	return Message{Version: _config.StackVersion, Targets: []string{}}
 }
 
-/*Dump : dump log a message */
-func (m Message) Dump() {
-	fmt.Printf("\n== Message (%p) ======================\n", &m)
-	fmt.Println(time.Now())
-	fmt.Println("*****Header*****")
+// Dump : dump log a message
+func (m Message) String() string {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "\n== Message (%p) ======================\n", &m)
+	fmt.Fprintln(&b, m.Time())
+	fmt.Fprintln(&b, "*****Header*****")
 	if m.Header.DevType != "" {
-		fmt.Printf("devType \t%s\n", m.Header.DevType)
+		fmt.Fprintf(&b, "devType \t%s\n", m.Header.DevType)
 	}
 	if m.Header.Action != "" {
-		fmt.Printf("action: \t%s\n", m.Header.Action)
+		fmt.Fprintf(&b, "action: \t%s\n", m.Header.Action)
 	}
 	if m.Header.MsgType != "" {
-		fmt.Printf("msgType: \t%s\n", m.Header.MsgType)
+		fmt.Fprintf(&b, "msgType: \t%s\n", m.Header.MsgType)
 	}
 	if m.Header.Source != "" {
-		fmt.Printf("source: \t%s\n", m.Header.Source)
-		fmt.Printf("version: \t%s\n", m.Version)
-		fmt.Printf("targets: \t%s\n", m.Targets)
+		fmt.Fprintf(&b, "source: \t%s\n", m.Header.Source)
+		fmt.Fprintf(&b, "version: \t%s\n", m.Version)
+		fmt.Fprintf(&b, "targets: \t%s\n", m.Targets)
 	}
 	if len(m.Body) > 0 {
-		fmt.Println("*****Body*****")
+		fmt.Fprintln(&b, "*****Body*****")
 		for k, v := range m.Body {
 			value := fmt.Sprint(v)
-			fmt.Printf("%s: \t%s\n", k, value)
+			fmt.Fprintf(&b, "%s: \t%s\n", k, value)
 		}
 	}
+	return b.String()
 }
 
 /*IsRequest : Return true if the message is a request */
