@@ -41,3 +41,23 @@ func Pass2key(passphrase string) string {
 	key, _ := scrypt.Key([]byte(passphrase), []byte(salt), 16384, 8, 1, 32)
 	return hex.EncodeToString(key)
 }
+
+// SliceContains : find a string in a slice
+func SliceContains(a *[]string, x string) (int, bool) {
+	for i, n := range *a {
+		if x == n {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// SliceDelete : delete a slice index
+func SliceDelete(a []string, i string) []string {
+	if i, in := SliceContains(&a, i); in {
+		copy(a[i:], a[i+1:])
+		a[len(a)-1] = ""
+		a = a[:len(a)-1]
+	}
+	return a
+}
