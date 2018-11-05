@@ -2,9 +2,7 @@ package engine
 
 import (
 	"xaal-go/configmanager"
-	"xaal-go/device"
 	"xaal-go/log"
-	"xaal-go/message"
 	"xaal-go/network"
 )
 
@@ -70,46 +68,4 @@ func Run() {
 	go processAlives()
 	<-_running // Listen the channel to stop
 	log.Info("Stopped", log.Fields{"-module": "engine"})
-}
-
-// loop throught the devices, to find which are
-// expected w/ the msg
-// - Filter on devTypes for isAlive request.
-// - Filter on device address
-func filterMsgForDevices(msg *message.Message, devices []*device.Device) []*device.Device {
-	var results []*device.Device
-	if msg.IsAlive() {
-		/* TODO
-		if _, in := msg.Body["devTypes"]; in {
-			devTypes := msg.Body["devTypes"].(string)
-			if _, in := devTypes["any.any"]; in {
-				results = devices
-			} else {
-				for i := 0; i < len(devices); i++ {
-					devTypesSplit := strings.Split(devices[i].DevType(), ".")
-					anySubtype := fmt.Sprintf("%s.any", devTypesSplit[0])
-					if _, in := devTypes[devices[i].DevType()]; in {
-						results = append(results, devices[i])
-					} else if _, in := devTypes[anySubtype]; in {
-						results = append(results, devices[i])
-					}
-				}
-			}
-		}
-		*/
-	} else {
-		/*
-			if len(msg.Targets) == 0 { // if target list is empty == broadcast
-				results = devices
-			} else {
-				for i := 0; i < len(devices); i++ {
-					for i := range msg.Targets {
-						if msg.Targets[i] == devices[i].Address {
-							results = append(results, devices[i])
-						}
-					}
-				}
-			}*/
-	}
-	return results
 }
