@@ -2,7 +2,7 @@
     "Address": "224.0.29.200",
 	"Port": 1235,
 	"Hops": 5,
-	"AliveTimer": 500,
+	"AliveTimer": 60,
 	"CipherWindow": 60,
 	"Key": ""
 }

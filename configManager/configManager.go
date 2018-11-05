@@ -30,7 +30,7 @@ var config = XaalConfiguration{
 	Port:          1235,
 	Hops:          10,
 	CipherWindow:  120,
-	AliveTimer:    100,
+	AliveTimer:    60,
 	XAALBcastAddr: "00000000-0000-0000-0000-000000000000",
 }
 

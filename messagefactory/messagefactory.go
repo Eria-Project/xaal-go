@@ -223,7 +223,7 @@ func buildMsg(dev *device.Device, targets []string, msgtype string, action strin
 
 // BuildAliveFor : Build Alive message for a given device
 // timeout = 0 is the minimum value
-func BuildAliveFor(dev *device.Device, timeout int) ([]byte, error) {
+func BuildAliveFor(dev *device.Device, timeout uint16) ([]byte, error) {
 	body := make(map[string]interface{})
 	body["timeout"] = timeout
 	return BuildMsg(dev, []string{}, "notify", "alive", body)

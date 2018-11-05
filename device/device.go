@@ -13,7 +13,7 @@ var _config = configmanager.GetXAALConfig()
 type Device struct {
 	DevType     string // xaal devtype
 	Address     string // xaal addr
-	alivePeriod int    // time in sec between two alive
+	alivePeriod uint16 // time in sec between two alive
 	VendorID    string // vendor ID ie : ACME
 	ProductID   string // product ID
 	Version     string // product release
@@ -54,6 +54,7 @@ func New(devType string, address string) (*Device, error) {
 		DevType:    devType,
 		Address:    address,
 		Attributes: make(map[string]*Attribute),
+		alivePeriod: _config.AliveTimer,
 	}
 	return &device, nil
 }
@@ -85,6 +86,6 @@ func (d *Device) SetAddress(address string) error {
 }
 
 // GetTimeout : return Alive timeout used for isAlive msg
-func (d *Device) GetTimeout() int {
-	return 2 * d.alivePeriod
+func (d *Device) GetTimeout() uint16 {
+	return (2 * d.alivePeriod)
 }

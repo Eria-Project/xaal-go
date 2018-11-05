@@ -65,3 +65,28 @@ func TestNew(t *testing.T) {
 	}
 
 }
+
+func TestDevice_GetTimeout(t *testing.T) {
+	type fields struct {
+		alivePeriod uint16
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name:   "Correct",
+			fields: fields{alivePeriod: 60},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Device{
+				alivePeriod: tt.fields.alivePeriod,
+			}
+			if got := d.GetTimeout(); got >= tt.fields.alivePeriod {
+				t.Errorf("Device.GetTimeout() = %v", got)
+			}
+		})
+	}
+}
