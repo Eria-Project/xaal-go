@@ -2,6 +2,7 @@ package configmanager
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os/user"
@@ -37,6 +38,20 @@ var config = XaalConfiguration{
 /*GetXAALConfig : Get the config instance*/
 func GetXAALConfig() *XaalConfiguration {
 	once.Do(func() {
+		// Parsing CLI flags
+		logLevel := flag.String("log", "info", "log level [info, debug, error, warn, no]")
+		flag.Parse()
+		switch *logLevel {
+		case "debug":
+			log.SetLevelDebug()
+		case "warn":
+			log.SetLevelWarn()
+		case "error":
+			log.SetLevelError()
+		case "no":
+			log.Disabled = true
+		}
+
 		usr, err := user.Current()
 		if err != nil {
 			log.Fatal("Cannot access user home", log.Fields{"-module": "configmanager", "err": err})
