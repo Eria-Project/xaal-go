@@ -102,24 +102,26 @@ func IsConnected() bool {
 }
 
 func receive() ([]byte, error) {
-	log.Debug("UDP: reading bytes...", log.Fields{"-module": "network"})
+	// log.Debug("UDP: reading bytes...", log.Fields{"-module": "network"})
 	packt := make([]byte, 10000)
-	n, cm, _, err := _pc.ReadFrom(packt)
+	n, _, _, err := _pc.ReadFrom(packt)
 	if err != nil {
 		return nil, fmt.Errorf("UDP: ReadFrom: error %v", err)
 	}
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	log.Debug("UDP: recv bytes", log.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
+	// log.Debug("UDP: recv bytes", log.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
 
 func send(data []byte) error {
-	if _, err := _pc.WriteTo(data, nil, _dst); err != nil {
+	_, err := _pc.WriteTo(data, nil, _dst)
+	if err != nil {
 		return fmt.Errorf("UDP: WriteTo: error %v", err)
 	}
+	// log.Debug("UDP: send bytes", log.Fields{"-module": "network", "size": n, "to": _dst.IP})
 	return nil
 }
 
