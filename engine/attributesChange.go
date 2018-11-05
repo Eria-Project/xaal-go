@@ -25,7 +25,7 @@ return self.___queueAttributesChange
 // processAttributesChange : Processes (send notify) attributes changes for all devices
 func processAttributesChange() {
 	for dev := range _queueAttributesChange {
-		var numChanges int = 0
+		var numChanges int
 		// Build Body
 		body := make(map[string]interface{})
 		for _, attr := range dev.Attributes {

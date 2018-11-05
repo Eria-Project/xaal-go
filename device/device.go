@@ -19,19 +19,18 @@ type Device struct {
 	Version     string // product release
 	URL         string // product URL
 	Info        string // additionnal info
-	/*
-		self.hw_id = None               # hardware info
-		self.group_id = None            # group devices
-	*/
+	HwID        string // hardware info
+	GroupID     string // group devices
+
 	// Unsupported stuffs
-	unsupportedAttributes []string
-	//	unsupportedMethods = []
-	//	unsupportedNotifications = []
+	unsupportedAttributes    []string
+	unsupportedMethods       []string
+	unsupportedNotifications []string
 
 	// Default attributes & methods
 	Attributes map[string]*Attribute
-
-	// self.engine = engine
+	Methods    map[string]func(*Device, map[string]interface{}) map[string]interface{}
+	MethodArgs map[string][]string
 }
 
 // New : device constructor
@@ -54,6 +53,14 @@ func New(devType string, address string) (*Device, error) {
 		DevType:    devType,
 		Address:    address,
 		Attributes: make(map[string]*Attribute),
+		Methods: map[string]func(*Device, map[string]interface{}) map[string]interface{}{
+			"getAttributes":  getAttributes,
+			"getDescription": getDescription,
+		},
+		MethodArgs: map[string][]string{
+			"getAttributes":  []string{"attributes"},
+			"getDescription": nil,
+		},
 		alivePeriod: _config.AliveTimer,
 	}
 	return &device, nil

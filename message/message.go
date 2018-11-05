@@ -113,3 +113,27 @@ func (m *Message) Time() time.Time {
 	nsec := int64(m.Timestamp[1] * 1000)
 	return time.Unix(sec, nsec)
 }
+
+/*
+def _get_parameters(self, args):
+	parameters = {}
+	for p in range(0, len(args)):
+		if isinstance(self.body[args[p]], str):
+			param = "'%s'" % self.body[args[p]]
+		else:
+			param = self.body[args[p]]
+
+		parameters[args[p]] = param
+	return parameters
+*/
+
+// GetParameters : request parameters are in body hash, return asis
+/* TO REMOVE
+func (m *Message) GetParameters() []string {
+	keys := make([]string, 0, len(m.Body))
+	for k := range m.Body {
+		keys = append(keys, k)
+	}
+	return keys
+}
+*/

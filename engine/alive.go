@@ -21,13 +21,13 @@ func SendAlive(dev *device.Device) {
 	if err != nil {
 		log.Error("Cannot build alive message", log.Fields{"-module": "engine", "err": err})
 	} else {
+		log.Debug("Sending alive message", log.Fields{"-module": "engine", "from": dev.Address})
 		_queueMsgTx <- msg
 	}
 }
 
 func sendAlives() {
-	for i := 0; i < len(_devices); i++ {
-		dev := _devices[i]
+	for _, dev := range _devices {
 		SendAlive(dev)
 	}
 }

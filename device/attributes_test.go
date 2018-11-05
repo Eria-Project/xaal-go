@@ -1,7 +1,6 @@
 package device
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -88,8 +87,6 @@ func TestDevice_NewAttribute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			d, _ := New("test.basic", "")
 			got, err := d.NewAttribute(tt.args.name, tt.args.defaultValue)
-			fmt.Println(err != nil)
-			fmt.Println((err != nil) != tt.wantErr)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Device.NewAttribute() error = %v, wantErr %v", err, tt.wantErr)
 				return

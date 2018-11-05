@@ -18,36 +18,55 @@ func processTxMsg() {
 	}
 }
 
-/*
-def send_request(self,dev,targets,action,body = None):
-"""queue a new request"""
-msg = self.msg_factory.build_msg(dev, targets, 'request', action, body)
-self.queue_msg(msg)
+// queue a new request
+func sendRequest(dev *device.Device, targets []string, action string, body map[string]interface{}) {
+	msg, err := messagefactory.BuildMsg(dev, targets, "request", action, body)
+	if err != nil {
+		log.Error("Cannot build request message", log.Fields{"-module": "engine", "err": err})
+	} else {
+		log.Debug("Sending request message", log.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
+		_queueMsgTx <- msg
+	}
+}
 
-def send_reply(self, dev, targets, action, body=None):
-"""queue a new reply"""
-msg = self.msg_factory.build_msg(dev, targets, 'reply', action, body)
-self.queue_msg(msg)
+// queue a new reply
+func sendReply(dev *device.Device, targets []string, action string, body map[string]interface{}) {
+	msg, err := messagefactory.BuildMsg(dev, targets, "reply", action, body)
+	if err != nil {
+		log.Error("Cannot build reply message", log.Fields{"-module": "engine", "err": err})
+	} else {
+		log.Debug("Sending reply message", log.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
+		_queueMsgTx <- msg
+	}
+}
 
-def send_error(self, dev, errcode, description=None):
-"""queue a error message"""
-msg = self.msg_factory.build_error_msg(dev, errcode, description)
-self.queue_msg(msg)
+// queue a error message
+func sendError(dev *device.Device, errcode int, description string) {
+	msg, err := messagefactory.BuildErrorMsg(dev, errcode, description)
+	if err != nil {
+		log.Error("Cannot build error message", log.Fields{"-module": "engine", "err": err})
+	} else {
+		log.Debug("Sending error message", log.Fields{"-module": "engine", "from": dev.Address})
+		_queueMsgTx <- msg
+	}
+}
 
-def send_get_description(self,dev,targets):
-"""queue a getDescription request"""
-self.send_request(dev,targets,'getDescription')
+// queue a getDescription request
+func sendGetDescription(dev *device.Device, targets []string) {
+	sendRequest(dev, targets, "getDescription", nil)
+}
 
-def send_get_attributes(self,dev,targets):
-"""queue a getAttributes request"""
-self.send_request(dev,targets,'getAttributes')
-
-*/
+// queue a getAttributes request
+func sendGetAttributes(dev *device.Device, targets []string) {
+	sendRequest(dev, targets, "getAttributes", nil)
+}
 
 func sendNotification(dev *device.Device, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "notify", action, body)
 	if err != nil {
-		log.Info("Cannot build notify message", log.Fields{"-module": "engine"})
+		log.Error("Cannot build notify message", log.Fields{"-module": "engine", "err": err})
+	} else {
+		log.Debug("Sending notify message", log.Fields{"-module": "engine", "action": action, "from": dev.Address})
+		_queueMsgTx <- msg
 	}
-	_queueMsgTx <- msg
 }
