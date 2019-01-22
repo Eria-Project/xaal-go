@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 
 	reuseport "github.com/kavu/go_reuseport"
 	"golang.org/x/net/ipv4"
@@ -28,70 +28,83 @@ func Init(address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	log.Info("Connecting...", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
+	logger.Info("Connecting...", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
 
 	// open socket (connection)
 	context := fmt.Sprintf("0.0.0.0:%d", _port)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
-		log.Fatal("Cannot open UDP4 socket", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port, "err": err})
+		logger.Fatal("Cannot open UDP4 socket", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port, "err": err})
 	}
-	log.Info("Connected", log.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
+	logger.Info("Connected", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
 
 	// join multicast address
-	log.Info("Joining Multicast Group...", log.Fields{"-module": "network", "multicastaddr": _address})
+	logger.Info("Joining Multicast Group...", logger.Fields{"-module": "network", "multicastaddr": _address})
 	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
 	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
-	ifaces, _ := net.Interfaces()
+	ifaces := getIPv4Interfaces()
 	for _, iface := range ifaces {
+		if err := _pc.JoinGroup(iface, _dst); err != nil {
+			logger.Warn("Cannot join multicat group", logger.Fields{"-module": "network", "iface": iface.Name, "err": err})
+		}
+		logger.Info("Joined Multicast group", logger.Fields{"-module": "network", "iface": iface.Name})
+	}
+
+	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {
+		_conn.Close()
+		logger.Fatal("Cannot set connection flags", logger.Fields{"-module": "network", "err": err})
+	}
+	//	_pc.SetTTL(128)
+	_stateConnected = true
+}
+
+func getIPv4Interfaces() map[string]*net.Interface {
+	candidateInterfaces := map[string]*net.Interface{}
+	ifaces, _ := net.Interfaces()
+	for i, iface := range ifaces {
 		if iface.Flags&net.FlagUp == 0 {
 			continue // interface down
 		}
 		if iface.Flags&net.FlagMulticast == 0 {
 			continue // not multicast interface
 		}
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue // not loopback interface
+		}
 		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagBroadcast != 0 { // Loopback or Broadcast
 			addrs, err := iface.Addrs()
 			if err != nil {
-				log.Fatal("Cannot list iface addresses", log.Fields{"-module": "network", "err": err})
+				logger.Fatal("Cannot list iface addresses", logger.Fields{"-module": "network", "err": err})
 			}
 			if len(addrs) > 0 {
 				for _, addr := range addrs {
+
 					var ip net.IP
 					switch v := addr.(type) {
 					case *net.IPAddr:
-						ip = v.IP
 					case *net.IPNet:
 						ip = v.IP
+						break
 					}
 					if ip == nil {
 						continue
 					}
-					ip = ip.To4()
-					if ip == nil {
+					if ip.To4() == nil {
 						continue // not an ipv4 address
 					}
-					if err := _pc.JoinGroup(&iface, _dst); err != nil {
-						log.Warn("Cannot join multicat group", log.Fields{"-module": "network", "iface": iface.Name, "err": err})
-					}
-					log.Info("Joined Multicast group", log.Fields{"-module": "network", "iface": iface.Name, "ip": ip})
+					logger.Info("Found interface", logger.Fields{"-module": "network", "iface": iface.Name, "ip": ip.String()})
+					candidateInterfaces[iface.Name] = &(ifaces[i]) // https://blogger.omri.io/golang-sneaky-range-pointer/
 				}
 			}
 		}
 	}
-
-	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {
-		_conn.Close()
-		log.Fatal("Cannot set connection flags", log.Fields{"-module": "network", "err": err})
-	}
-	//	_pc.SetTTL(128)
-	_stateConnected = true
+	return candidateInterfaces
 }
 
 /*Disconnect : Disconnect the network */
 func Disconnect() {
-	log.Info("Disconnecting socket", log.Fields{"-module": "network"})
+	logger.Info("Disconnecting socket", logger.Fields{"-module": "network"})
 	_stateConnected = false
 	_conn.Close()
 }
@@ -102,7 +115,7 @@ func IsConnected() bool {
 }
 
 func receive() ([]byte, error) {
-	// log.Debug("UDP: reading bytes...", log.Fields{"-module": "network"})
+	// logger.Debug("UDP: reading bytes...", logger.Fields{"-module": "network"})
 	packt := make([]byte, 10000)
 	n, _, _, err := _pc.ReadFrom(packt)
 	if err != nil {
@@ -111,7 +124,7 @@ func receive() ([]byte, error) {
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	// log.Debug("UDP: recv bytes", log.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
+	// logger.Debug("UDP: recv bytes", logger.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
@@ -121,7 +134,7 @@ func send(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("UDP: WriteTo: error %v", err)
 	}
-	// log.Debug("UDP: send bytes", log.Fields{"-module": "network", "size": n, "to": _dst.IP})
+	// logger.Debug("UDP: send bytes", logger.Fields{"-module": "network", "size": n, "to": _dst.IP})
 	return nil
 }
 
@@ -129,7 +142,7 @@ func send(data []byte) error {
 func GetData() []byte {
 	data, err := receive()
 	if err != nil {
-		log.Error("Cannot receive data", log.Fields{"-module": "network", "err": err})
+		logger.Error("Cannot receive data", logger.Fields{"-module": "network", "err": err})
 	}
 	return data
 }
@@ -138,6 +151,6 @@ func GetData() []byte {
 func SendData(data []byte) {
 	err := send(data)
 	if err != nil {
-		log.Fatal("Cannot send data", log.Fields{"-module": "network", "err": err})
+		logger.Fatal("Cannot send data", logger.Fields{"-module": "network", "err": err})
 	}
 }

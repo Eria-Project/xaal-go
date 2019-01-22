@@ -2,17 +2,18 @@ package engine
 
 import (
 	"xaal-go/configmanager"
-	"xaal-go/log"
 	"xaal-go/network"
+
+	"github.com/ERIA-Project/logger"
 )
 
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
-	//	log.SetFormatter(&log.JSONFormatter{})
+	//	logger.SetFormatter(&logger.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
-	//log.SetOutput(os.Stdout)
+	//logger.SetOutput(os.Stdout)
 }
 
 var _config = configmanager.GetXAALConfig()
@@ -47,7 +48,7 @@ func start() {
 
 // Stop all mainloops
 func Stop() {
-	log.Info("Stopping...", log.Fields{"-module": "engine"})
+	logger.Info("Stopping...", logger.Fields{"-module": "engine"})
 	close(_queueMsgTx)
 	_tickerAlive.Stop() // Stop Alives
 	_running <- false
@@ -67,5 +68,5 @@ func Run() {
 	// Process Alives
 	go processAlives()
 	<-_running // Listen the channel to stop
-	log.Info("Stopped", log.Fields{"-module": "engine"})
+	logger.Info("Stopped", logger.Fields{"-module": "engine"})
 }

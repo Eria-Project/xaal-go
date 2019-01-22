@@ -18,7 +18,7 @@ import (
 	"xaal-go/message"
 	"xaal-go/tools"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -31,7 +31,7 @@ func init() {
 	var err error
 	_cipherKey, err = hex.DecodeString(_config.Key) // key encode / decode message built from passphrase
 	if err != nil {
-		log.Fatal("Cannot decode cipher key", log.Fields{"-module": "messagefactory", "err": err})
+		logger.Fatal("Cannot decode cipher key", logger.Fields{"-module": "messagefactory", "err": err})
 	}
 }
 

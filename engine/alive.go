@@ -7,7 +7,7 @@ import (
 	"xaal-go/device"
 	"xaal-go/messagefactory"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 )
 
 var _tickerAlive *time.Ticker
@@ -19,9 +19,9 @@ func SendAlive(dev *device.Device) {
 	timeout := dev.GetTimeout()
 	msg, err := messagefactory.BuildAliveFor(dev, timeout)
 	if err != nil {
-		log.Error("Cannot build alive message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build alive message", logger.Fields{"-module": "engine", "err": err})
 	} else {
-		log.Debug("Sending alive message", log.Fields{"-module": "engine", "from": dev.Address})
+		logger.Debug("Sending alive message", logger.Fields{"-module": "engine", "from": dev.Address})
 		_queueMsgTx <- msg
 	}
 }
@@ -38,7 +38,7 @@ func SendIsAlive(dev *device.Device, devTypes string) {
 	body["devTypes"] = devTypes
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "request", "isAlive", body)
 	if err != nil {
-		log.Error("Cannot build isAlive message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build isAlive message", logger.Fields{"-module": "engine", "err": err})
 	} else {
 		_queueMsgTx <- msg
 	}
@@ -49,10 +49,10 @@ func processAlives() {
 	_config := configmanager.GetXAALConfig()
 	_tickerAlive = time.NewTicker(time.Duration(_config.AliveTimer) * time.Second)
 	go func() {
-		log.Debug("Send initial alive messages", log.Fields{"-module": "engine"})
+		logger.Debug("Send initial alive messages", logger.Fields{"-module": "engine"})
 		sendAlives()
 		for range _tickerAlive.C {
-			log.Debug("Send alive messages", log.Fields{"-module": "engine"})
+			logger.Debug("Send alive messages", logger.Fields{"-module": "engine"})
 			sendAlives()
 		}
 	}()

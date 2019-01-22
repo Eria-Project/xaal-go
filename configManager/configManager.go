@@ -8,7 +8,7 @@ import (
 	"os/user"
 	"sync"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 )
 
 /*XaalConfiguration : structure for xaal config file */
@@ -41,26 +41,17 @@ func GetXAALConfig() *XaalConfiguration {
 		// Parsing CLI flags
 		logLevel := flag.String("log", "info", "log level [info, debug, error, warn, no]")
 		flag.Parse()
-		switch *logLevel {
-		case "debug":
-			log.SetLevelDebug()
-		case "warn":
-			log.SetLevelWarn()
-		case "error":
-			log.SetLevelError()
-		case "no":
-			log.Disabled = true
-		}
+		logger.SetLevel(*logLevel)
 
 		usr, err := user.Current()
 		if err != nil {
-			log.Fatal("Cannot access user home", log.Fields{"-module": "configmanager", "err": err})
+			logger.Fatal("Cannot access user home", logger.Fields{"-module": "configmanager", "err": err})
 		}
 
 		configFile := fmt.Sprintf("%s/.xaal/xaal.json", usr.HomeDir)
 		err = LoadConfig(configFile, &config)
 		if err != nil {
-			log.Fatal("Cannot load config file", log.Fields{"-module": "configmanager", "err": err})
+			logger.Fatal("Cannot load config file", logger.Fields{"-module": "configmanager", "err": err})
 		}
 	})
 	return &config
@@ -68,7 +59,7 @@ func GetXAALConfig() *XaalConfiguration {
 
 // LoadConfig : Load config from file
 func LoadConfig(filename string, s interface{}) error {
-	log.Info("Loading config", log.Fields{"-module": "configmanager", "file": filename})
+	logger.Info("Loading config", logger.Fields{"-module": "configmanager", "file": filename})
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		// TODO What to do if file doesn't exists

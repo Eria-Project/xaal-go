@@ -6,7 +6,7 @@ import (
 	"xaal-go/messagefactory"
 	"xaal-go/network"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 )
 
 var _queueMsgTx = make(chan []byte)
@@ -22,9 +22,9 @@ func processTxMsg() {
 func sendRequest(dev *device.Device, targets []string, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, targets, "request", action, body)
 	if err != nil {
-		log.Error("Cannot build request message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build request message", logger.Fields{"-module": "engine", "err": err})
 	} else {
-		log.Debug("Sending request message", log.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
+		logger.Debug("Sending request message", logger.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
 		_queueMsgTx <- msg
 	}
 }
@@ -33,9 +33,9 @@ func sendRequest(dev *device.Device, targets []string, action string, body map[s
 func sendReply(dev *device.Device, targets []string, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, targets, "reply", action, body)
 	if err != nil {
-		log.Error("Cannot build reply message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build reply message", logger.Fields{"-module": "engine", "err": err})
 	} else {
-		log.Debug("Sending reply message", log.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
+		logger.Debug("Sending reply message", logger.Fields{"-module": "engine", "action": action, "from": dev.Address, "to": targets})
 		_queueMsgTx <- msg
 	}
 }
@@ -44,9 +44,9 @@ func sendReply(dev *device.Device, targets []string, action string, body map[str
 func sendError(dev *device.Device, errcode int, description string) {
 	msg, err := messagefactory.BuildErrorMsg(dev, errcode, description)
 	if err != nil {
-		log.Error("Cannot build error message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build error message", logger.Fields{"-module": "engine", "err": err})
 	} else {
-		log.Debug("Sending error message", log.Fields{"-module": "engine", "from": dev.Address})
+		logger.Debug("Sending error message", logger.Fields{"-module": "engine", "from": dev.Address})
 		_queueMsgTx <- msg
 	}
 }
@@ -64,9 +64,9 @@ func sendGetAttributes(dev *device.Device, targets []string) {
 func sendNotification(dev *device.Device, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "notify", action, body)
 	if err != nil {
-		log.Error("Cannot build notify message", log.Fields{"-module": "engine", "err": err})
+		logger.Error("Cannot build notify message", logger.Fields{"-module": "engine", "err": err})
 	} else {
-		log.Debug("Sending notify message", log.Fields{"-module": "engine", "action": action, "from": dev.Address})
+		logger.Debug("Sending notify message", logger.Fields{"-module": "engine", "action": action, "from": dev.Address})
 		_queueMsgTx <- msg
 	}
 }

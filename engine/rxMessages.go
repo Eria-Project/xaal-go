@@ -7,7 +7,7 @@ import (
 	"xaal-go/messagefactory"
 	"xaal-go/network"
 
-	"xaal-go/log"
+	"github.com/ERIA-Project/logger"
 )
 
 var _rxHandlers []func(*message.Message)
@@ -38,7 +38,7 @@ func processRxMsg() {
 		if data != nil {
 			msg, err := messagefactory.DecodeMsg(data)
 			if err != nil {
-				log.Error("Cannot decode message", log.Fields{"-module": "engine", "err": err})
+				logger.Error("Cannot decode message", logger.Fields{"-module": "engine", "err": err})
 			}
 			if _, in := _devices[msg.Header.Source]; !in { // Ignore is the msg comes for one of our devices
 				if msg != nil {
@@ -57,7 +57,7 @@ func handleRequest(msg *message.Message) {
 	if msg.IsRequest() {
 		targets := filterMsgForDevices(msg, _devices)
 		if len(targets) > 0 {
-			log.Debug("Received request", log.Fields{"-module": "engine", "action": msg.Header.Action})
+			logger.Debug("Received request", logger.Fields{"-module": "engine", "action": msg.Header.Action})
 			processRequest(msg, targets)
 		}
 	}
@@ -112,7 +112,7 @@ func runAction(msg *message.Message, dev *device.Device) map[string]interface{} 
 				if value, in := msg.Body[p]; in {
 					params[p] = value
 				} else {
-					log.Info("Wrong method parameter for action", log.Fields{"parameter": p, "action": msg.Header.Action})
+					logger.Info("Wrong method parameter for action", logger.Fields{"parameter": p, "action": msg.Header.Action})
 				}
 			}
 		}
