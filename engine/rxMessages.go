@@ -85,7 +85,7 @@ func processRequest(msg *message.Message, targets map[string]*device.Device) {
 func handleMethodRequest(msg *message.Message, target *device.Device) {
 	result := runAction(msg, target)
 	if result != nil {
-		sendReply(target, []string{msg.Header.Source}, msg.Header.Action, result)
+		SendReply(target, []string{msg.Header.Source}, msg.Header.Action, result)
 		// TODO		except CallbackError as e:
 		//			self.send_error(target, e.code, e.description)
 		//		except XAALError as e:
@@ -107,8 +107,7 @@ func runAction(msg *message.Message, dev *device.Device) map[string]interface{} 
 	if _, in := methods[msg.Header.Action]; in {
 		method := methods[msg.Header.Action]
 		if len(msg.Body) > 0 {
-			methodParams, _ := dev.GetMethodArgs(msg.Header.Action) // TODO Handle error
-			for _, p := range methodParams {
+			for _, p := range method.Args {
 				if value, in := msg.Body[p]; in {
 					params[p] = value
 				} else {
@@ -116,7 +115,7 @@ func runAction(msg *message.Message, dev *device.Device) map[string]interface{} 
 				}
 			}
 		}
-		result = method(dev, params)
+		result = method.Function(dev, params)
 		//	 except :
 		//		raise XAALError("Error in method:%s params:%s" % (msg.action,params))
 	}

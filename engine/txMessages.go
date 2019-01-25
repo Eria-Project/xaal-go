@@ -18,8 +18,8 @@ func processTxMsg() {
 	}
 }
 
-// queue a new request
-func sendRequest(dev *device.Device, targets []string, action string, body map[string]interface{}) {
+// SendRequest queue a new request
+func SendRequest(dev *device.Device, targets []string, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, targets, "request", action, body)
 	if err != nil {
 		logger.Error("Cannot build request message", logger.Fields{"-module": "engine", "err": err})
@@ -29,8 +29,8 @@ func sendRequest(dev *device.Device, targets []string, action string, body map[s
 	}
 }
 
-// queue a new reply
-func sendReply(dev *device.Device, targets []string, action string, body map[string]interface{}) {
+// SendReply queue a new reply
+func SendReply(dev *device.Device, targets []string, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, targets, "reply", action, body)
 	if err != nil {
 		logger.Error("Cannot build reply message", logger.Fields{"-module": "engine", "err": err})
@@ -40,8 +40,8 @@ func sendReply(dev *device.Device, targets []string, action string, body map[str
 	}
 }
 
-// queue a error message
-func sendError(dev *device.Device, errcode int, description string) {
+// SendError queue a error message
+func SendError(dev *device.Device, errcode int, description string) {
 	msg, err := messagefactory.BuildErrorMsg(dev, errcode, description)
 	if err != nil {
 		logger.Error("Cannot build error message", logger.Fields{"-module": "engine", "err": err})
@@ -51,17 +51,18 @@ func sendError(dev *device.Device, errcode int, description string) {
 	}
 }
 
-// queue a getDescription request
-func sendGetDescription(dev *device.Device, targets []string) {
-	sendRequest(dev, targets, "getDescription", nil)
+// SendGetDescription queue a getDescription request
+func SendGetDescription(dev *device.Device, targets []string) {
+	SendRequest(dev, targets, "getDescription", nil)
 }
 
-// queue a getAttributes request
-func sendGetAttributes(dev *device.Device, targets []string) {
-	sendRequest(dev, targets, "getAttributes", nil)
+// SendGetAttributes queue a getAttributes request
+func SendGetAttributes(dev *device.Device, targets []string) {
+	SendRequest(dev, targets, "getAttributes", nil)
 }
 
-func sendNotification(dev *device.Device, action string, body map[string]interface{}) {
+// SendNotification queue a notification message
+func SendNotification(dev *device.Device, action string, body map[string]interface{}) {
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "notify", action, body)
 	if err != nil {
 		logger.Error("Cannot build notify message", logger.Fields{"-module": "engine", "err": err})

@@ -36,7 +36,7 @@ func processAttributesChange() {
 			}
 		}
 		if numChanges > 0 {
-			sendNotification(dev, "attributesChange", body)
+			SendNotification(dev, "attributesChange", body)
 		}
 	}
 }

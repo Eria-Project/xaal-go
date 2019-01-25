@@ -29,8 +29,7 @@ type Device struct {
 
 	// Default attributes & methods
 	Attributes map[string]*Attribute
-	Methods    map[string]func(*Device, map[string]interface{}) map[string]interface{}
-	MethodArgs map[string][]string
+	Methods    map[string]*Method
 }
 
 // New : device constructor
@@ -53,13 +52,14 @@ func New(devType string, address string) (*Device, error) {
 		DevType:    devType,
 		Address:    address,
 		Attributes: make(map[string]*Attribute),
-		Methods: map[string]func(*Device, map[string]interface{}) map[string]interface{}{
-			"getAttributes":  getAttributes,
-			"getDescription": getDescription,
-		},
-		MethodArgs: map[string][]string{
-			"getAttributes":  []string{"attributes"},
-			"getDescription": nil,
+		Methods: map[string]*Method{
+			"getAttributes": &Method{
+				Function: getAttributes,
+				Args:     []string{"attributes"},
+			},
+			"getDescription": &Method{
+				Function: getDescription,
+			},
 		},
 		alivePeriod: _config.AliveTimer,
 	}

@@ -56,19 +56,6 @@ def get_attribute(self,name):
 	return None
 */
 
-// GetMethods : return the list of device methods
-func (d *Device) GetMethods() map[string]func(*Device, map[string]interface{}) map[string]interface{} {
-	return d.Methods
-}
-
-// GetMethodArgs : return the list on arguments for a given method
-func (d *Device) GetMethodArgs(method string) ([]string, error) {
-	if _, in := d.MethodArgs[method]; !in {
-		return nil, fmt.Errorf("Method not found")
-	}
-	return d.MethodArgs[method], nil
-}
-
 // default public methods
 
 func getDescription(d *Device, args map[string]interface{}) map[string]interface{} {
