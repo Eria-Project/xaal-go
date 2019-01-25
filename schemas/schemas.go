@@ -10,8 +10,12 @@ import (
 func DeviceFromType(schema string, addr string) (*device.Device, error) {
 	schema = strings.ToLower(schema)
 	switch schema {
-	case "lamp":
+	case "lamp.basic":
 		return Lamp(addr), nil
+	case "shutter.basic":
+		return Shutter(addr), nil
+	case "shutter.position":
+		return ShutterPosition(addr), nil
 	}
 	return nil, fmt.Errorf("Device type '%s' not implemented", schema)
 }
@@ -56,13 +60,6 @@ def audiomixer(addr=None):
     dev.add_method('mute',default_mute)
     dev.add_method('unmute',default_unmute)
 
-    return dev
-
-#=====================================================================
-def basic(addr=None):
-    """Generic schema for any devices"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('basic.basic',addr)
     return dev
 
 #=====================================================================
@@ -526,70 +523,6 @@ def schemarepository(addr=None):
 
     return dev
 
-#=====================================================================
-def shutter(addr=None):
-    """Simple shutter"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('shutter.basic',addr)
-
-    # -- Attributes --
-    # Ongoing action of the shutter
-    dev.new_attribute('action')
-
-    # -- Methods --
-    def default_up():
-        """Up the shutter"""
-        logger.info("default_up()")
-
-    def default_down():
-        """Down the shutter"""
-        logger.info("default_down()")
-
-    def default_stop():
-        """Stop ongoing action of the shutter"""
-        logger.info("default_stop()")
-
-    dev.add_method('up',default_up)
-    dev.add_method('down',default_down)
-    dev.add_method('stop',default_stop)
-
-    return dev
-
-#=====================================================================
-def shutter_position(addr=None):
-    """Shutter with a position managment"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('shutter.position',addr)
-
-    # -- Attributes --
-    # Ongoing action of the shutter
-    dev.new_attribute('action')
-    # Level of aperture of the shutter
-    dev.new_attribute('position')
-
-    # -- Methods --
-    def default_up():
-        """Up the shutter"""
-        logger.info("default_up()")
-
-    def default_down():
-        """Down the shutter"""
-        logger.info("default_down()")
-
-    def default_stop():
-        """Stop ongoing action of the shutter"""
-        logger.info("default_stop()")
-
-    def default_position(_target):
-        """Change the position of the shutter"""
-        logger.info("default_position(target=[%s],)" % (_target))
-
-    dev.add_method('up',default_up)
-    dev.add_method('down',default_down)
-    dev.add_method('stop',default_stop)
-    dev.add_method('position',default_position)
-
-    return dev
 
 #=====================================================================
 def soundmeter(addr=None):

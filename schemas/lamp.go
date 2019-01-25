@@ -2,6 +2,8 @@ package schemas
 
 import (
 	"xaal-go/device"
+
+	"github.com/Eria-Project/logger"
 )
 
 // Lamp : Simple switch lamp
@@ -12,18 +14,21 @@ func Lamp(addr string) *device.Device {
 	// State of the lamp
 	dev.NewAttribute("light", nil)
 
-	/* TODO
-	   # -- Methods --
-	   def default_on():
-	       """Switch on the lamp"""
-	       logger.info("default_on()")
+	// -- Methods --
+	dev.AddMethod("on", defaultOn)
+	dev.AddMethod("off", defaultOff)
 
-	   def default_off():
-	       """Switch off the lamp"""
-	       logger.info("default_off()")
-
-	   dev.add_method('on',default_on)
-	   dev.add_method('off',default_off)
-	*/
 	return dev
+}
+
+func defaultOn(d *device.Device, args map[string]interface{}) map[string]interface{} {
+	// """Switch on the lamp"""
+	logger.Debug("defaultOn()")
+	return nil
+}
+
+func defaultOff(d *device.Device, args map[string]interface{}) map[string]interface{} {
+	// """Switch off the lamp"""
+	logger.Debug("defaultOff()")
+	return nil
 }
