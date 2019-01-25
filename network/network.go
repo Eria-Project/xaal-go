@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 
 	reuseport "github.com/kavu/go_reuseport"
 	"golang.org/x/net/ipv4"

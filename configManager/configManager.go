@@ -8,7 +8,7 @@ import (
 	"os/user"
 	"sync"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 )
 
 /*XaalConfiguration : structure for xaal config file */

@@ -7,7 +7,7 @@ import (
 	"xaal-go/messagefactory"
 	"xaal-go/network"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 )
 
 var _rxHandlers []func(*message.Message)

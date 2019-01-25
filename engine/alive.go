@@ -7,7 +7,7 @@ import (
 	"xaal-go/device"
 	"xaal-go/messagefactory"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 )
 
 var _tickerAlive *time.Ticker

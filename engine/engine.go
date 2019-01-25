@@ -4,7 +4,7 @@ import (
 	"xaal-go/configmanager"
 	"xaal-go/network"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 )
 
 func init() {

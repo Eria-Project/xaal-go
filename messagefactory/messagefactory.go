@@ -18,7 +18,7 @@ import (
 	"xaal-go/message"
 	"xaal-go/tools"
 
-	"github.com/ERIA-Project/logger"
+	"github.com/Eria-Project/logger"
 
 	"golang.org/x/crypto/chacha20poly1305"
 )
