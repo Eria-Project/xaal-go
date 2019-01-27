@@ -1,25 +1,37 @@
 package engine
 
 import (
-	"xaal-go/configmanager"
+	"xaal-go/device"
+	"xaal-go/messagefactory"
 	"xaal-go/network"
 
+	"github.com/Eria-Project/config-manager"
 	"github.com/Eria-Project/logger"
 )
 
-func init() {
-	// Log as JSON instead of the default ASCII formatter.
-	//	logger.SetFormatter(&logger.JSONFormatter{})
-
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
-	//logger.SetOutput(os.Stdout)
-}
-
-var _config = configmanager.GetXAALConfig()
+var _config = struct {
+	StackVersion  string `default:"0.5"`          // protocol version
+	Address       string `default:"224.0.29.200"` // mcast address
+	Port          uint16 `default:"1235"`         // mcast port
+	Hops          uint8  `default:"10"`           // mcast hop
+	Key           string `required:"true"`
+	CipherWindow  uint16 `default:"120"` // Time Window in seconds to avoid replay attacks
+	AliveTimer    uint16 `default:"60"`  // Time between two alive msg
+	XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
+}{}
 
 /*InitWithConfig : init the engine using the config file parameters */
-func InitWithConfig() {
+func InitWithConfig(configFile string) {
+	configManagerXAAL, err := configmanager.Init(configFile)
+	if err != nil {
+		logger.WithField("file", configFile).Fatal("Missing config file")
+	}
+
+	if err := configManagerXAAL.Load(&_config); err != nil {
+		logger.WithError(err).Fatal()
+	}
+	messagefactory.Init(_config.StackVersion, _config.Key, _config.CipherWindow)
+	device.Init(_config.XAALBcastAddr, _config.AliveTimer)
 	Init(_config.Address, _config.Port, _config.Hops)
 }
 
@@ -66,7 +78,7 @@ func Run() {
 	/* Process timers */
 	go processTimers()
 	// Process Alives
-	go processAlives()
+	go processAlives(_config.AliveTimer)
 	<-_running // Listen the channel to stop
 	logger.Info("Stopped", logger.Fields{"-module": "engine"})
 }

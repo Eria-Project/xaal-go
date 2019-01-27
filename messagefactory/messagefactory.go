@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"xaal-go/configmanager"
 	"xaal-go/device"
 	"xaal-go/message"
 	"xaal-go/tools"
@@ -23,13 +22,18 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-var _cipherKey []byte
-var _config = configmanager.GetXAALConfig()
+var (
+	_cipherKey    []byte
+	_cipherWindow uint16
+	_stackVersion string
+)
 
-// init : Initialise and decode the cipher key
-func init() {
+// Init : Initialise and decode the cipher key
+func Init(stackVersion string, key string, cipherWindow uint16) {
+	_stackVersion = stackVersion
+	_cipherWindow = cipherWindow
 	var err error
-	_cipherKey, err = hex.DecodeString(_config.Key) // key encode / decode message built from passphrase
+	_cipherKey, err = hex.DecodeString(key) // key encode / decode message built from passphrase
 	if err != nil {
 		logger.Fatal("Cannot decode cipher key", logger.Fields{"-module": "messagefactory", "err": err})
 	}
@@ -112,10 +116,10 @@ func decodeMsg(data []byte, nowTime func() time.Time) (*message.Message, error) 
 	// Replay attack, window fixed to CIPHER_WINDOW in seconds
 	now, _ := buildTimestamp(nowTime) // test done only on seconds ...
 
-	if int64(msgTime) < (now - int64(_config.CipherWindow)) {
+	if int64(msgTime) < (now - int64(_cipherWindow)) {
 		return nil, fmt.Errorf("Potential replay attack, message too old: %d sec", now-int64(msgTime))
 	}
-	if int64(msgTime) > (now + int64(_config.CipherWindow)) {
+	if int64(msgTime) > (now + int64(_cipherWindow)) {
 		return nil, fmt.Errorf("Potential replay attack, message too young: %d sec", now-int64(msgTime))
 	}
 
@@ -198,7 +202,7 @@ func BuildMsg(dev *device.Device, targets []string, msgtype string, action strin
 	return buildMsg(dev, targets, msgtype, action, body, nowFunc)
 }
 func buildMsg(dev *device.Device, targets []string, msgtype string, action string, body map[string]interface{}, nowTime func() time.Time) ([]byte, error) {
-	msg := message.New()
+	msg := message.New(_stackVersion)
 	msg.Header.Source = dev.Address
 	msg.Header.DevType = dev.DevType
 	msg.Targets = targets

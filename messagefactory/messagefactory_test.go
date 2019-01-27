@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var key = "6a40b7ba084b3cbd787fdfaf02ea32c2eae50c4c8f410c43e10d36fdb75b3670"
+var xAALBcastAddr = "00000000-0000-0000-0000-000000000000"
+var aliveTimer = uint16(60)
+
 func nowMock() time.Time {
 	return time.Date(1977, 9, 22, 18, 20, 45, 651387237, time.UTC)
 }
@@ -161,7 +165,7 @@ func Test_decodeMsg(t *testing.T) {
 }
 
 func TestBuildMsg(t *testing.T) {
-	dev, _ := device.New("test.basic", "3cd47760-ce4f-11e8-a044-406c8f5172cb")
+	dev, _ := device.New("test.basic", "3cd47760-ce4f-11e8-a044-406c8f5172cb", xAALBcastAddr, aliveTimer)
 	body := make(map[string]interface{})
 	body["bool"] = true
 	body["int"] = 10

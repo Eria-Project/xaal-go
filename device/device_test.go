@@ -6,6 +6,13 @@ import (
 	"xaal-go/tools"
 )
 
+var xAALBcastAddr = "00000000-0000-0000-0000-000000000000"
+var aliveTimer = uint16(60)
+
+func init() {
+	Init(xAALBcastAddr, aliveTimer)
+}
+
 func TestNew(t *testing.T) {
 	type args struct {
 		devType string

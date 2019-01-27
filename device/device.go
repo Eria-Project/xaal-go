@@ -3,11 +3,19 @@ package device
 import (
 	"errors"
 	"fmt"
-	"xaal-go/configmanager"
 	"xaal-go/tools"
 )
 
-var _config = configmanager.GetXAALConfig()
+var (
+	_xAALBcastAddr string
+	_aliveTimer    uint16
+)
+
+// Init the global devices params
+func Init(xAALBcastAddr string, aliveTimer uint16) {
+	_xAALBcastAddr = xAALBcastAddr
+	_aliveTimer = aliveTimer
+}
 
 // Device : xAAL device
 type Device struct {
@@ -43,7 +51,7 @@ func New(devType string, address string) (*Device, error) {
 		if !tools.IsValidAddr(address) {
 			return nil, fmt.Errorf("The address %s is not valid", address)
 		}
-		if address == _config.XAALBcastAddr {
+		if address == _xAALBcastAddr {
 			return nil, errors.New("The broadcast address is reserved")
 		}
 	}
@@ -61,7 +69,7 @@ func New(devType string, address string) (*Device, error) {
 				Function: getDescription,
 			},
 		},
-		alivePeriod: _config.AliveTimer,
+		alivePeriod: _aliveTimer,
 	}
 	return &device, nil
 }
@@ -77,7 +85,7 @@ func (d *Device) SetDevType(devType string) error {
 }
 
 /*SetAddress : Set the device address */
-func (d *Device) SetAddress(address string) error {
+func (d *Device) SetAddress(address string, xAALBcastAddr string) error {
 	if address == "" {
 		d.Address = ""
 		return nil
@@ -85,7 +93,7 @@ func (d *Device) SetAddress(address string) error {
 	if !tools.IsValidAddr(address) {
 		return fmt.Errorf("The address %s is not valid", address)
 	}
-	if address == _config.XAALBcastAddr {
+	if address == xAALBcastAddr {
 		return errors.New("The broadcast address is reserved")
 	}
 	d.Address = address

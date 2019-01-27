@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"xaal-go/configmanager"
 )
-
-var _config = configmanager.GetXAALConfig()
 
 // DataMessage : xAAL JSON Message struct
 type DataMessage struct {
@@ -37,8 +34,8 @@ type Header struct {
 }
 
 // New : Initiate a new Message struct
-func New() Message {
-	return Message{Version: _config.StackVersion, Targets: []string{}}
+func New(stackVersion string) Message {
+	return Message{Version: stackVersion, Targets: []string{}}
 }
 
 // Dump : dump log a message
