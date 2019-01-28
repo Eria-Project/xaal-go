@@ -28,32 +28,32 @@ func Init(address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	logger.Info("Connecting...", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
+	logger.Module("network").WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Info("Connecting...")
 
 	// open socket (connection)
 	context := fmt.Sprintf("0.0.0.0:%d", _port)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
-		logger.Fatal("Cannot open UDP4 socket", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port, "err": err})
+		logger.Module("network").WithError(err).WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Fatal("Cannot open UDP4 socket")
 	}
-	logger.Info("Connected", logger.Fields{"-module": "network", "addr": "0.0.0.0", "port": _port})
+	logger.Module("network").WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Info("Connected")
 
 	// join multicast address
-	logger.Info("Joining Multicast Group...", logger.Fields{"-module": "network", "multicastaddr": _address})
+	logger.Module("network").WithField("multicastaddr", _address).Info("Joining Multicast Group...")
 	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
 	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
 	ifaces := getIPv4Interfaces()
 	for _, iface := range ifaces {
 		if err := _pc.JoinGroup(iface, _dst); err != nil {
-			logger.Warn("Cannot join multicat group", logger.Fields{"-module": "network", "iface": iface.Name, "err": err})
+			logger.Module("network").WithError(err).WithField("iface", iface.Name).Warn("Cannot join multicat group")
 		}
-		logger.Info("Joined Multicast group", logger.Fields{"-module": "network", "iface": iface.Name})
+		logger.Module("network").WithField("iface", iface.Name).Info("Joined Multicast group")
 	}
 
 	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {
 		_conn.Close()
-		logger.Fatal("Cannot set connection flags", logger.Fields{"-module": "network", "err": err})
+		logger.Module("network").WithError(err).Fatal("Cannot set connection flags")
 	}
 	//	_pc.SetTTL(128)
 	_stateConnected = true
@@ -75,7 +75,7 @@ func getIPv4Interfaces() map[string]*net.Interface {
 		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagBroadcast != 0 { // Loopback or Broadcast
 			addrs, err := iface.Addrs()
 			if err != nil {
-				logger.Fatal("Cannot list iface addresses", logger.Fields{"-module": "network", "err": err})
+				logger.Module("network").WithError(err).Fatal("Cannot list iface addresses")
 			}
 			if len(addrs) > 0 {
 				for _, addr := range addrs {
@@ -93,7 +93,7 @@ func getIPv4Interfaces() map[string]*net.Interface {
 					if ip.To4() == nil {
 						continue // not an ipv4 address
 					}
-					logger.Info("Found interface", logger.Fields{"-module": "network", "iface": iface.Name, "ip": ip.String()})
+					logger.Module("network").WithFields(logger.Fields{"iface": iface.Name, "ip": ip.String()}).Info("Found interface")
 					candidateInterfaces[iface.Name] = &(ifaces[i]) // https://blogger.omri.io/golang-sneaky-range-pointer/
 				}
 			}
@@ -104,7 +104,7 @@ func getIPv4Interfaces() map[string]*net.Interface {
 
 /*Disconnect : Disconnect the network */
 func Disconnect() {
-	logger.Info("Disconnecting socket", logger.Fields{"-module": "network"})
+	logger.Module("network").Info("Disconnecting socket")
 	_stateConnected = false
 	_conn.Close()
 }
@@ -115,26 +115,26 @@ func IsConnected() bool {
 }
 
 func receive() ([]byte, error) {
-	// logger.Debug("UDP: reading bytes...", logger.Fields{"-module": "network"})
+	logger.Module("network").Trace("UDP: reading bytes...")
 	packt := make([]byte, 10000)
-	n, _, _, err := _pc.ReadFrom(packt)
+	n, cm, _, err := _pc.ReadFrom(packt)
 	if err != nil {
 		return nil, fmt.Errorf("UDP: ReadFrom: error %v", err)
 	}
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	// logger.Debug("UDP: recv bytes", logger.Fields{"-module": "network", "size": n, "from": cm.Src, "to": cm.Dst})
+	logger.Module("network").WithFields(logger.Fields{"size": n, "from": cm.Src, "to": cm.Dst}).Trace("UDP: recv bytes")
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
 
 func send(data []byte) error {
-	_, err := _pc.WriteTo(data, nil, _dst)
+	n, err := _pc.WriteTo(data, nil, _dst)
 	if err != nil {
 		return fmt.Errorf("UDP: WriteTo: error %v", err)
 	}
-	// logger.Debug("UDP: send bytes", logger.Fields{"-module": "network", "size": n, "to": _dst.IP})
+	logger.Module("network").WithFields(logger.Fields{"size": n, "to": _dst.IP}).Trace("UDP: send bytes")
 	return nil
 }
 
@@ -142,7 +142,7 @@ func send(data []byte) error {
 func GetData() []byte {
 	data, err := receive()
 	if err != nil {
-		logger.Error("Cannot receive data", logger.Fields{"-module": "network", "err": err})
+		logger.Module("network").WithError(err).Error("Cannot receive data")
 	}
 	return data
 }
@@ -151,6 +151,6 @@ func GetData() []byte {
 func SendData(data []byte) {
 	err := send(data)
 	if err != nil {
-		logger.Fatal("Cannot send data", logger.Fields{"-module": "network", "err": err})
+		logger.Module("network").WithError(err).Fatal("Cannot send data")
 	}
 }

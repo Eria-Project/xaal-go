@@ -60,7 +60,7 @@ func start() {
 
 // Stop all mainloops
 func Stop() {
-	logger.Info("Stopping...", logger.Fields{"-module": "engine"})
+	logger.Module("engine").Info("Stopping...")
 	close(_queueMsgTx)
 	_tickerAlive.Stop() // Stop Alives
 	_running <- false
@@ -80,5 +80,5 @@ func Run() {
 	// Process Alives
 	go processAlives(_config.AliveTimer)
 	<-_running // Listen the channel to stop
-	logger.Info("Stopped", logger.Fields{"-module": "engine"})
+	logger.Module("engine").Info("Stopped")
 }

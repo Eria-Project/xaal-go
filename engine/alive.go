@@ -18,9 +18,9 @@ func SendAlive(dev *device.Device) {
 	timeout := dev.GetTimeout()
 	msg, err := messagefactory.BuildAliveFor(dev, timeout)
 	if err != nil {
-		logger.Error("Cannot build alive message", logger.Fields{"-module": "engine", "err": err})
+		logger.Module("engine").WithError(err).Error("Cannot build alive message")
 	} else {
-		logger.Debug("Sending alive message", logger.Fields{"-module": "engine", "from": dev.Address})
+		logger.Module("engine").WithField("from", dev.Address).Debug("Sending alive message")
 		_queueMsgTx <- msg
 	}
 }
@@ -37,7 +37,7 @@ func SendIsAlive(dev *device.Device, devTypes string) {
 	body["devTypes"] = devTypes
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "request", "isAlive", body)
 	if err != nil {
-		logger.Error("Cannot build isAlive message", logger.Fields{"-module": "engine", "err": err})
+		logger.Module("engine").WithError(err).Error("Cannot build isAlive message")
 	} else {
 		_queueMsgTx <- msg
 	}
@@ -47,10 +47,10 @@ func SendIsAlive(dev *device.Device, devTypes string) {
 func processAlives(aliveTimer uint16) {
 	_tickerAlive = time.NewTicker(time.Duration(aliveTimer) * time.Second)
 	go func() {
-		logger.Debug("Send initial alive messages", logger.Fields{"-module": "engine"})
+		logger.Module("engine").Debug("Send initial alive messages")
 		sendAlives()
 		for range _tickerAlive.C {
-			logger.Debug("Send alive messages", logger.Fields{"-module": "engine"})
+			logger.Module("engine").Debug("Send alive messages")
 			sendAlives()
 		}
 	}()
