@@ -24,11 +24,11 @@ var _config = struct {
 func InitWithConfig(configFile string) {
 	configManagerXAAL, err := configmanager.Init(configFile)
 	if err != nil {
-		logger.WithField("file", configFile).Fatal("Missing config file")
+		logger.Module("engine").WithField("filename", configFile).Fatal("Missing config file")
 	}
 
 	if err := configManagerXAAL.Load(&_config); err != nil {
-		logger.WithError(err).Fatal()
+		logger.Module("engine").WithError(err).Fatal()
 	}
 	messagefactory.Init(_config.StackVersion, _config.Key, _config.CipherWindow)
 	device.Init(_config.XAALBcastAddr, _config.AliveTimer)
