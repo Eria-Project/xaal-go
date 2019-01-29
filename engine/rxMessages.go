@@ -2,10 +2,10 @@
 package engine
 
 import (
-	"xaal-go/device"
-	"xaal-go/message"
-	"xaal-go/messagefactory"
-	"xaal-go/network"
+	"github.com/Eria-Project/xaal-go/device"
+	"github.com/Eria-Project/xaal-go/message"
+	"github.com/Eria-Project/xaal-go/messagefactory"
+	"github.com/Eria-Project/xaal-go/network"
 
 	"github.com/Eria-Project/logger"
 )

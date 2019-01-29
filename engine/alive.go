@@ -3,8 +3,9 @@ package engine
 
 import (
 	"time"
-	"xaal-go/device"
-	"xaal-go/messagefactory"
+
+	"github.com/Eria-Project/xaal-go/device"
+	"github.com/Eria-Project/xaal-go/messagefactory"
 
 	"github.com/Eria-Project/logger"
 )

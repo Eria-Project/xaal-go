@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"xaal-go/device"
-	"xaal-go/message"
-	"xaal-go/tools"
+
+	"github.com/Eria-Project/xaal-go/device"
+	"github.com/Eria-Project/xaal-go/message"
+	"github.com/Eria-Project/xaal-go/tools"
 )
 
 var _devices map[string]*device.Device // list of devices / use (un)register_devices()

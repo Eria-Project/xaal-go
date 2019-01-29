@@ -1,7 +1,7 @@
 package schemas
 
 import (
-	"xaal-go/device"
+	"github.com/Eria-Project/xaal-go/device"
 )
 
 // Windgauge : Simple windgauge

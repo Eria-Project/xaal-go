@@ -3,7 +3,8 @@ package device
 import (
 	"errors"
 	"fmt"
-	"xaal-go/tools"
+
+	"github.com/Eria-Project/xaal-go/tools"
 )
 
 var (

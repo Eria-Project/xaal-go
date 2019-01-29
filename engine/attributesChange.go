@@ -2,7 +2,7 @@
 package engine
 
 import (
-	"xaal-go/device"
+	"github.com/Eria-Project/xaal-go/device"
 )
 
 var _queueAttributesChange = make(chan *device.Device)

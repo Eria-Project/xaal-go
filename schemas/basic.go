@@ -1,7 +1,7 @@
 package schemas
 
 import (
-	"xaal-go/device"
+	"github.com/Eria-Project/xaal-go/device"
 )
 
 // Basic : Generic schema for any devices

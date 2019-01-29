@@ -1,9 +1,10 @@
 package device
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
-	"xaal-go/tools"
+
+	"github.com/Eria-Project/xaal-go/tools"
 )
 
 var xAALBcastAddr = "00000000-0000-0000-0000-000000000000"
@@ -21,13 +22,13 @@ func TestNew(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *Device
+		want    Device
 		wantErr bool
 	}{
 		{
 			name:    "Manual address",
 			args:    args{devType: "test.basic", address: "3cd47760-ce4f-11e8-a044-406c8f5172cb"},
-			want:    &Device{DevType: "test.basic", Attributes: make(map[string]*Attribute), Address: "3cd47760-ce4f-11e8-a044-406c8f5172cb"},
+			want:    Device{DevType: "test.basic", Address: "3cd47760-ce4f-11e8-a044-406c8f5172cb"},
 			wantErr: false,
 		},
 		{
@@ -53,7 +54,8 @@ func TestNew(t *testing.T) {
 				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			fmt.Printf("New() = %v, want %v", got, tt.want)
+			if !tt.wantErr && (got.Address != tt.want.Address || got.DevType != tt.want.DevType) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
 		})
@@ -91,7 +93,7 @@ func TestDevice_GetTimeout(t *testing.T) {
 			d := &Device{
 				alivePeriod: tt.fields.alivePeriod,
 			}
-			if got := d.GetTimeout(); got >= tt.fields.alivePeriod {
+			if got := d.GetTimeout(); got <= tt.fields.alivePeriod {
 				t.Errorf("Device.GetTimeout() = %v", got)
 			}
 		})

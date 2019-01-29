@@ -3,7 +3,8 @@ package schemas
 import (
 	"fmt"
 	"strings"
-	"xaal-go/device"
+
+	"github.com/Eria-Project/xaal-go/device"
 )
 
 // DeviceFromType return a device created using a string type schema

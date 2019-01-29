@@ -3,8 +3,8 @@ package engine
 
 import (
 	"testing"
-	"xaal-go/device"
-	"xaal-go/message"
+	"github.com/Eria-Project/xaal-go/device"
+	"github.com/Eria-Project/xaal-go/message"
 
 	"github.com/stretchr/testify/assert"
 )

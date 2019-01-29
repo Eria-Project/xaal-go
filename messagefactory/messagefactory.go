@@ -13,9 +13,9 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"xaal-go/device"
-	"xaal-go/message"
-	"xaal-go/tools"
+	"github.com/Eria-Project/xaal-go/device"
+	"github.com/Eria-Project/xaal-go/message"
+	"github.com/Eria-Project/xaal-go/tools"
 
 	"github.com/Eria-Project/logger"
 
