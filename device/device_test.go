@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Eria-Project/xaal-go/tools"
+	"github.com/Eria-Project/xaal-go/utils"
 )
 
 var xAALBcastAddr = "00000000-0000-0000-0000-000000000000"
@@ -69,7 +69,7 @@ func TestNew(t *testing.T) {
 	if got.Address == "" {
 		t.Errorf("New() Auto address no generated")
 	}
-	if !tools.IsValidAddr(got.Address) {
+	if !utils.IsValidAddr(got.Address) {
 		t.Errorf("New() Wrong generated address %s", got.Address)
 	}
 

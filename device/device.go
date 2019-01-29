@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Eria-Project/xaal-go/tools"
+	"github.com/Eria-Project/xaal-go/utils"
 )
 
 var (
@@ -43,13 +43,13 @@ type Device struct {
 
 // New : device constructor
 func New(devType string, address string) (*Device, error) {
-	if !tools.IsValidDevType(devType) {
+	if !utils.IsValidDevType(devType) {
 		return nil, fmt.Errorf("The devtype %s is not valid", devType)
 	}
 	if address == "" {
-		address = tools.GetRandomUUID()
+		address = utils.GetRandomUUID()
 	} else {
-		if !tools.IsValidAddr(address) {
+		if !utils.IsValidAddr(address) {
 			return nil, fmt.Errorf("The address %s is not valid", address)
 		}
 		if address == _xAALBcastAddr {
@@ -78,7 +78,7 @@ func New(devType string, address string) (*Device, error) {
 // SetDevType : Set the device type
 // TO REMOVE ??
 func (d *Device) SetDevType(devType string) error {
-	if !tools.IsValidDevType(devType) {
+	if !utils.IsValidDevType(devType) {
 		return fmt.Errorf("The devtype %s is not valid", devType)
 	}
 	d.DevType = devType
@@ -91,7 +91,7 @@ func (d *Device) SetAddress(address string, xAALBcastAddr string) error {
 		d.Address = ""
 		return nil
 	}
-	if !tools.IsValidAddr(address) {
+	if !utils.IsValidAddr(address) {
 		return fmt.Errorf("The address %s is not valid", address)
 	}
 	if address == xAALBcastAddr {

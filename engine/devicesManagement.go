@@ -8,7 +8,7 @@ import (
 
 	"github.com/Eria-Project/xaal-go/device"
 	"github.com/Eria-Project/xaal-go/message"
-	"github.com/Eria-Project/xaal-go/tools"
+	"github.com/Eria-Project/xaal-go/utils"
 )
 
 var _devices map[string]*device.Device // list of devices / use (un)register_devices()
@@ -50,7 +50,7 @@ func filterMsgForDevices(msg *message.Message, devices map[string]*device.Device
 			} else { // Array
 				devTypes = msg.Body["devTypes"].([]string)
 			}
-			if _, in := tools.SliceContains(&devTypes, "any.any"); in {
+			if _, in := utils.SliceContains(&devTypes, "any.any"); in {
 				// If request alive for all devices
 				results = devices
 			} else {
@@ -58,9 +58,9 @@ func filterMsgForDevices(msg *message.Message, devices map[string]*device.Device
 				for _, dev := range devices {
 					devTypesSplit := strings.Split(dev.DevType, ".")
 					anySubtype := fmt.Sprintf("%s.any", devTypesSplit[0])
-					if _, in := tools.SliceContains(&devTypes, dev.DevType); in {
+					if _, in := utils.SliceContains(&devTypes, dev.DevType); in {
 						results[dev.Address] = dev
-					} else if _, in := tools.SliceContains(&devTypes, anySubtype); in {
+					} else if _, in := utils.SliceContains(&devTypes, anySubtype); in {
 						results[dev.Address] = dev
 					}
 				}

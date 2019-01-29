@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"flag"
+
 	"github.com/Eria-Project/xaal-go/device"
 	"github.com/Eria-Project/xaal-go/messagefactory"
 	"github.com/Eria-Project/xaal-go/network"
@@ -9,37 +11,45 @@ import (
 	"github.com/Eria-Project/logger"
 )
 
-var _config = struct {
-	StackVersion  string `default:"0.5"`          // protocol version
-	Address       string `default:"224.0.29.200"` // mcast address
-	Port          uint16 `default:"1235"`         // mcast port
-	Hops          uint8  `default:"10"`           // mcast hop
-	Key           string `required:"true"`
-	CipherWindow  uint16 `default:"120"` // Time Window in seconds to avoid replay attacks
-	AliveTimer    uint16 `default:"60"`  // Time between two alive msg
-	XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
-}{}
+var (
+	_config = struct {
+		StackVersion  string `default:"0.5"`          // protocol version
+		Address       string `default:"224.0.29.200"` // mcast address
+		Port          uint16 `default:"1235"`         // mcast port
+		Hops          uint8  `default:"10"`           // mcast hop
+		Key           string `required:"true"`
+		CipherWindow  uint16 `default:"120"` // Time Window in seconds to avoid replay attacks
+		AliveTimer    uint16 `default:"60"`  // Time between two alive msg
+		XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
+	}{}
 
-/*InitWithConfig : init the engine using the config file parameters */
-func InitWithConfig(configFile string) {
-	configManagerXAAL, err := configmanager.Init(configFile)
+	_logLevel   *string
+	_configFile = "xaal.json"
+)
+
+func init() {
+	_logLevel = flag.String("log", "info", "log level [info, debug, error, warn, no]")
+}
+
+// Init : init the engine using the config
+func Init() {
+	configManagerXAAL, err := configmanager.Init(_configFile)
 	if err != nil {
-		logger.Module("engine").WithField("filename", configFile).Fatal("Missing config file")
+		logger.Module("engine").WithField("filename", _configFile).Fatal("Missing config file")
 	}
 
 	if err := configManagerXAAL.Load(&_config); err != nil {
 		logger.Module("engine").WithError(err).Fatal()
 	}
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	logger.SetLevel(*_logLevel)
+
 	messagefactory.Init(_config.StackVersion, _config.Key, _config.CipherWindow)
 	device.Init(_config.XAALBcastAddr, _config.AliveTimer)
-	Init(_config.Address, _config.Port, _config.Hops)
-}
-
-/*Init : init the engine */
-func Init(address string, port uint16, hops uint8) {
-	_rxHandlers = append(_rxHandlers, handleRequest) // message receive workflow
-	/* start network */
-	network.Init(address, port, hops)
+	_rxHandlers = append(_rxHandlers, handleRequest)          // message receive workflow
+	network.Init(_config.Address, _config.Port, _config.Hops) // Start network
 }
 
 /*******************

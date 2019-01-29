@@ -13,9 +13,10 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
 	"github.com/Eria-Project/xaal-go/device"
 	"github.com/Eria-Project/xaal-go/message"
-	"github.com/Eria-Project/xaal-go/tools"
+	"github.com/Eria-Project/xaal-go/utils"
 
 	"github.com/Eria-Project/logger"
 
@@ -158,7 +159,7 @@ func decodeMsg(data []byte, nowTime func() time.Time) (*message.Message, error) 
 	}
 
 	// Sanity check incomming message
-	if !tools.IsValidAddr(msg.Header.Source) {
+	if !utils.IsValidAddr(msg.Header.Source) {
 		return nil, fmt.Errorf("Wrong message source [%s]", msg.Header.Source)
 	}
 	return msg, nil
