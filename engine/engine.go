@@ -24,27 +24,36 @@ var (
 	}{}
 
 	_logLevel   *string
+	_logFile    *string
 	_configFile = "xaal.json"
 )
 
 func init() {
 	_logLevel = flag.String("log", "info", "log level [info, debug, error, warn, no]")
+	_logFile = flag.String("log-file", "", "log file path (default to stderr")
 }
 
 // Init : init the engine using the config
 func Init() {
+	if *_logFile != "" {
+		logger.SetFile(*_logFile)
+		logger.Module("engine").WithField("path", *_logFile).Info("Set log file")
+	}
+
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	logger.SetLevel(*_logLevel)
+	logger.Module("engine").WithField("level", *_logLevel).Info("Set log level")
+
 	configManagerXAAL, err := configmanager.Init(_configFile)
 	if err != nil {
-		logger.Module("engine").WithField("filename", _configFile).Fatal("Missing config file")
+		logger.Module("engine").WithError(err).WithField("filename", _configFile).Fatal()
 	}
 
 	if err := configManagerXAAL.Load(&_config); err != nil {
 		logger.Module("engine").WithError(err).Fatal()
 	}
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-	logger.SetLevel(*_logLevel)
 
 	messagefactory.Init(_config.StackVersion, _config.Key, _config.CipherWindow)
 	device.Init(_config.XAALBcastAddr, _config.AliveTimer)
