@@ -2,11 +2,11 @@
 package engine
 
 import (
-	"github.com/Eria-Project/xaal-go/device"
-	"github.com/Eria-Project/xaal-go/messagefactory"
-	"github.com/Eria-Project/xaal-go/network"
+	"github.com/project-eria/xaal-go/device"
+	"github.com/project-eria/xaal-go/messagefactory"
+	"github.com/project-eria/xaal-go/network"
 
-	"github.com/Eria-Project/logger"
+	"github.com/project-eria/logger"
 )
 
 var _queueMsgTx = make(chan []byte)

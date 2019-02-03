@@ -1,7 +1,7 @@
 package schemas
 
 import (
-	"github.com/Eria-Project/xaal-go/device"
+	"github.com/project-eria/xaal-go/device"
 )
 
 // Hygrometer : Simple hygrometer

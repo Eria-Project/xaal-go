@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Eria-Project/xaal-go/device"
-	"github.com/Eria-Project/xaal-go/message"
+	"github.com/project-eria/xaal-go/device"
+	"github.com/project-eria/xaal-go/message"
 
 	"github.com/stretchr/testify/assert"
 )

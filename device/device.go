@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Eria-Project/xaal-go/utils"
+	"github.com/project-eria/xaal-go/utils"
 )
 
 var (

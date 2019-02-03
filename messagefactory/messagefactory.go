@@ -14,11 +14,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Eria-Project/xaal-go/device"
-	"github.com/Eria-Project/xaal-go/message"
-	"github.com/Eria-Project/xaal-go/utils"
+	"github.com/project-eria/xaal-go/device"
+	"github.com/project-eria/xaal-go/message"
+	"github.com/project-eria/xaal-go/utils"
 
-	"github.com/Eria-Project/logger"
+	"github.com/project-eria/logger"
 
 	"golang.org/x/crypto/chacha20poly1305"
 )

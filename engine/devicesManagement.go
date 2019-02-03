@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/Eria-Project/xaal-go/device"
-	"github.com/Eria-Project/xaal-go/message"
-	"github.com/Eria-Project/xaal-go/utils"
+	"github.com/project-eria/xaal-go/device"
+	"github.com/project-eria/xaal-go/message"
+	"github.com/project-eria/xaal-go/utils"
 )
 
 var _devices map[string]*device.Device // list of devices / use (un)register_devices()

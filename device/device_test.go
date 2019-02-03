@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Eria-Project/xaal-go/utils"
+	"github.com/project-eria/xaal-go/utils"
 )
 
 var xAALBcastAddr = "00000000-0000-0000-0000-000000000000"

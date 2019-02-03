@@ -4,10 +4,10 @@ package engine
 import (
 	"time"
 
-	"github.com/Eria-Project/xaal-go/device"
-	"github.com/Eria-Project/xaal-go/messagefactory"
+	"github.com/project-eria/xaal-go/device"
+	"github.com/project-eria/xaal-go/messagefactory"
 
-	"github.com/Eria-Project/logger"
+	"github.com/project-eria/logger"
 )
 
 var _tickerAlive *time.Ticker

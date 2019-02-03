@@ -1,9 +1,9 @@
 package schemas
 
 import (
-	"github.com/Eria-Project/xaal-go/device"
+	"github.com/project-eria/xaal-go/device"
 
-	"github.com/Eria-Project/logger"
+	"github.com/project-eria/logger"
 )
 
 // Shutter returns a simple shutter
