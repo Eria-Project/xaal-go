@@ -40,8 +40,12 @@ func TestIsValidAddr(t *testing.T) {
 
 func TestGetRandomUUID(t *testing.T) {
 	t.Run("", func(t *testing.T) {
-		if got := GetRandomUUID(); !IsValidAddr(got) {
-			t.Errorf("GetRandomUUID() = %v is not a valid UUID", got)
+		var got1 string
+		if got1 = GetRandomUUID(); !IsValidAddr(got1) {
+			t.Errorf("GetRandomUUID() = %v is not a valid UUID", got1)
+		}
+		if got2 := GetRandomUUID(); got1 == got2 {
+			t.Error("GetRandomUUID() = provided identical strings (not random)")
 		}
 	})
 }

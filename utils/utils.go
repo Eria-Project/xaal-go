@@ -31,7 +31,7 @@ func IsValidDevType(val string) bool {
 
 // GetRandomUUID : Generates a new xAAL UUID
 func GetRandomUUID() string {
-	u1 := uuid.Must(uuid.NewV1()) // panic on error
+	u1 := uuid.Must(uuid.NewV4()) // panic on error
 	return u1.String()
 }
 
