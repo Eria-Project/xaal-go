@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"flag"
-
 	"github.com/project-eria/xaal-go/device"
 	"github.com/project-eria/xaal-go/messagefactory"
 	"github.com/project-eria/xaal-go/network"
@@ -10,6 +8,11 @@ import (
 	"github.com/project-eria/config-manager"
 	"github.com/project-eria/logger"
 )
+
+// Version returns the current implementation version
+func Version() string {
+	return "0.0.1-dev"
+}
 
 var (
 	_config = struct {
@@ -22,36 +25,21 @@ var (
 		AliveTimer    uint16 `default:"60"`  // Time between two alive msg
 		XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
 	}{}
-
-	_logLevel   *string
-	_logFile    *string
 	_configFile = "xaal.json"
 )
 
 func init() {
-	_logLevel = flag.String("log", "info", "log level [info, debug, error, warn, no]")
-	_logFile = flag.String("log-file", "", "log file path (default to stderr")
 }
 
 // Init : init the engine using the config
 func Init() {
-	if *_logFile != "" {
-		logger.SetFile(*_logFile)
-		logger.Module("engine").WithField("path", *_logFile).Info("Set log file")
-	}
 
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-	logger.SetLevel(*_logLevel)
-	logger.Module("engine").WithField("level", *_logLevel).Info("Set log level")
-
-	configManagerXAAL, err := configmanager.Init(_configFile)
+	configManagerXAAL, err := configmanager.Init(_configFile, &_config)
 	if err != nil {
 		logger.Module("engine").WithError(err).WithField("filename", _configFile).Fatal()
 	}
 
-	if err := configManagerXAAL.Load(&_config); err != nil {
+	if err := configManagerXAAL.Load(); err != nil {
 		logger.Module("engine").WithError(err).Fatal()
 	}
 
