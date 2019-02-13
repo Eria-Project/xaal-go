@@ -9,10 +9,11 @@ import (
 	"github.com/project-eria/logger"
 )
 
-// Version returns the current implementation version
-func Version() string {
-	return "0.0.1-dev"
-}
+// GitCommit is a placeholder for the engine current git commit hash
+var GitCommit = "-"
+
+// Timestamp is a placeholder for the build date
+var Timestamp = "-"
 
 var (
 	_config = struct {
@@ -33,7 +34,6 @@ func init() {
 
 // Init : init the engine using the config
 func Init() {
-
 	configManagerXAAL, err := configmanager.Init(_configFile, &_config)
 	if err != nil {
 		logger.Module("engine").WithError(err).WithField("filename", _configFile).Fatal()
