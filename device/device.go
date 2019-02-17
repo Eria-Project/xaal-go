@@ -58,9 +58,12 @@ func New(devType string, address string) (*Device, error) {
 	}
 
 	device := Device{
-		DevType:    devType,
-		Address:    address,
-		Attributes: make(map[string]*Attribute),
+		DevType:                  devType,
+		Address:                  address,
+		unsupportedAttributes:    []string{},
+		unsupportedMethods:       []string{},
+		unsupportedNotifications: []string{},
+		Attributes:               make(map[string]*Attribute),
 		Methods: map[string]*Method{
 			"getAttributes": &Method{
 				Function: getAttributes,
