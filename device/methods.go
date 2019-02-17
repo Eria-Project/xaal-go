@@ -15,14 +15,14 @@ type Method struct {
 }
 
 // AddMethod : Associate a new method
-func (d *Device) AddMethod(name string, f Function) error {
+func (d *Device) AddMethod(name string, f Function) (*Method, error) {
 	if name == "" {
-		return errors.New("No name has been provided for the method")
+		return nil, errors.New("No name has been provided for the method")
 	}
 	d.Methods[name] = &Method{
 		Function: f,
 	}
-	return nil
+	return d.Methods[name], nil
 }
 
 // GetMethods : return the list of device methods
