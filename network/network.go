@@ -3,10 +3,11 @@ package network
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/project-eria/logger"
 
-	reuseport "github.com/kavu/go_reuseport"
+	reuseport "github.com/libp2p/go-reuseport"
 	"golang.org/x/net/ipv4"
 )
 
@@ -17,6 +18,7 @@ var _stateConnected bool
 var _conn net.PacketConn
 var _pc *ipv4.PacketConn
 var _dst *net.UDPAddr
+var _ifaces map[int]*net.Interface
 
 /*Init : init the network */
 func Init(address string, port uint16, hops uint8) {
@@ -28,23 +30,34 @@ func Init(address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	logger.Module("network").WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Info("Connecting...")
+	logger.Module("network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connecting...")
 
 	// open socket (connection)
-	context := fmt.Sprintf("0.0.0.0:%d", _port)
+	context := fmt.Sprintf("%s:%d", _address, _port)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
-		logger.Module("network").WithError(err).WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Fatal("Cannot open UDP4 socket")
+		logger.Module("network").WithError(err).WithFields(logger.Fields{"addr": _address, "port": _port}).Fatal("Cannot open UDP4 socket")
 	}
-	logger.Module("network").WithFields(logger.Fields{"addr": "0.0.0.0", "port": _port}).Info("Connected")
+	logger.Module("network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connected")
 
 	// join multicast address
 	logger.Module("network").WithField("multicastaddr", _address).Info("Joining Multicast Group...")
-	group := net.ParseIP(_address)
 	_pc = ipv4.NewPacketConn(_conn)
+
+	// Set Multicat on Loopback
+	if loop, err := _pc.MulticastLoopback(); err == nil {
+		logger.Module("network").WithField("status", loop).Debug("MulticastLoopback")
+		if !loop {
+			if err := _pc.SetMulticastLoopback(true); err != nil {
+				logger.Module("network").WithError(err).Warn("SetMulticastLoopback")
+			}
+		}
+	}
+	group := net.ParseIP(_address)
 	_dst = &net.UDPAddr{IP: group, Port: int(_port)} // Set the destination address
-	ifaces := getIPv4Interfaces()
-	for _, iface := range ifaces {
+
+	_ifaces = getIPv4Interfaces()
+	for _, iface := range _ifaces {
 		if err := _pc.JoinGroup(iface, _dst); err != nil {
 			logger.Module("network").WithError(err).WithField("iface", iface.Name).Warn("Cannot join multicat group")
 		}
@@ -57,29 +70,35 @@ func Connect() {
 	}
 	//	_pc.SetTTL(128)
 	_stateConnected = true
+
+	go func() {
+		tick := time.Tick(1 * time.Second)
+		// Keep trying until we're timed out or got a result or got an error
+		for {
+			select {
+			case <-tick:
+				//				logger.Module("network").Tracef("Check network => %+v %+v", _pc, _pc.PacketConn)
+			}
+		}
+	}()
 }
 
-func getIPv4Interfaces() map[string]*net.Interface {
-	candidateInterfaces := map[string]*net.Interface{}
+func getIPv4Interfaces() map[int]*net.Interface {
+	candidateInterfaces := map[int]*net.Interface{}
 	ifaces, _ := net.Interfaces()
 	for i, iface := range ifaces {
+		logger.Module("network").WithFields(logger.Fields{"iface": iface.Name, "flags": iface.Flags}).Trace("Interface")
+
 		if iface.Flags&net.FlagUp == 0 {
 			continue // interface down
 		}
-		if iface.Flags&net.FlagMulticast == 0 {
-			continue // not multicast interface
-		}
-		if iface.Flags&net.FlagLoopback != 0 {
-			continue // not loopback interface
-		}
-		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagBroadcast != 0 { // Loopback or Broadcast
+		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagMulticast != 0 { // Loopback or Broadcast
 			addrs, err := iface.Addrs()
 			if err != nil {
 				logger.Module("network").WithError(err).Fatal("Cannot list iface addresses")
 			}
 			if len(addrs) > 0 {
 				for _, addr := range addrs {
-
 					var ip net.IP
 					switch v := addr.(type) {
 					case *net.IPAddr:
@@ -94,7 +113,7 @@ func getIPv4Interfaces() map[string]*net.Interface {
 						continue // not an ipv4 address
 					}
 					logger.Module("network").WithFields(logger.Fields{"iface": iface.Name, "ip": ip.String()}).Info("Found interface")
-					candidateInterfaces[iface.Name] = &(ifaces[i]) // https://blogger.omri.io/golang-sneaky-range-pointer/
+					candidateInterfaces[iface.Index] = &(ifaces[i]) // https://blogger.omri.io/golang-sneaky-range-pointer/
 				}
 			}
 		}
@@ -124,17 +143,27 @@ func receive() ([]byte, error) {
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	logger.Module("network").WithFields(logger.Fields{"size": n, "from": cm.Src, "to": cm.Dst}).Trace("UDP: recv bytes")
+	logger.Module("network").WithFields(logger.Fields{"size": n, "from": cm.Src, "via": _ifaces[cm.IfIndex].Name, "to": cm.Dst}).Trace("UDP: recv bytes")
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
 
 func send(data []byte) error {
-	n, err := _pc.WriteTo(data, nil, _dst)
+	dst := _dst
+	var (
+		n   int
+		err error
+	)
+	n, err = _pc.WriteTo(data, nil, dst)
 	if err != nil {
-		return fmt.Errorf("UDP: WriteTo: error %v", err)
+		logger.Module("network").WithError(err).Error("UDP: Error writing connection, trying localhost")
+		dst = &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: int(_port)}
+		n, err = _pc.WriteTo(data, nil, dst)
+		if err != nil {
+			return fmt.Errorf("UDP: WriteTo: error %v", err)
+		}
 	}
-	logger.Module("network").WithFields(logger.Fields{"size": n, "to": _dst.IP}).Trace("UDP: send bytes")
+	logger.Module("network").WithFields(logger.Fields{"size": n, "to": dst.IP, "via": _pc.PacketConn.LocalAddr()}).Trace("UDP: send bytes")
 	return nil
 }
 
