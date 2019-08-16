@@ -17,6 +17,14 @@ func DeviceFromType(schema string, addr string) (*device.Device, error) {
 		return Shutter(addr), nil
 	case "shutter.position":
 		return ShutterPosition(addr), nil
+	case "watermeter.basic":
+		return Watermeter(addr), nil
+	case "powerrelay.basic":
+		return Powerrelay(addr), nil
+	case "switch.basic":
+		return Switch(addr), nil
+	case "thermometer.basic":
+		return Thermometer(addr), nil
 	}
 	return nil, fmt.Errorf("Device type '%s' not implemented", schema)
 }
@@ -428,30 +436,6 @@ def powermeter(addr=None):
     return dev
 
 #=====================================================================
-def powerrelay(addr=None):
-    """Simple power relay device"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('powerrelay.basic',addr)
-
-    # -- Attributes --
-    # State of the relay
-    dev.new_attribute('power')
-
-    # -- Methods --
-    def default_on():
-        """Switch on the relay"""
-        logger.info("default_on()")
-
-    def default_off():
-        """Switch off the relay"""
-        logger.info("default_off()")
-
-    dev.add_method('on',default_on)
-    dev.add_method('off',default_off)
-
-    return dev
-
-#=====================================================================
 def powerrelay_toggle(addr=None):
     """Power relay with toggle function - Note that a toggle function may leads to undefined state due to its stateful nature; its usage should be avoided."""
     if (addr==None):addr = tools.get_random_uuid()
@@ -534,17 +518,6 @@ def soundmeter(addr=None):
     # -- Attributes --
     # Sound intensity
     dev.new_attribute('sound')
-    return dev
-
-#=====================================================================
-def switch(addr=None):
-    """Simple switch button device"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('switch.basic',addr)
-
-    # -- Attributes --
-    # Position of the switch
-    dev.new_attribute('position')
     return dev
 
 #=====================================================================
