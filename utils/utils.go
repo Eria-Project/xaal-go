@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"regexp"
 
-	"github.com/satori/go.uuid"
+	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/scrypt"
 )
 
