@@ -4,8 +4,6 @@ import (
 	"github.com/project-eria/xaal-go/device"
 	"github.com/project-eria/xaal-go/messagefactory"
 	"github.com/project-eria/xaal-go/network"
-
-	"github.com/project-eria/config-manager"
 	"github.com/project-eria/logger"
 )
 
@@ -15,38 +13,29 @@ var GitCommit = "-"
 // Timestamp is a placeholder for the build date
 var Timestamp = "-"
 
-var (
-	_config = struct {
-		StackVersion  string `default:"0.5"`          // protocol version
-		Address       string `default:"224.0.29.200"` // mcast address
-		Port          uint16 `default:"1235"`         // mcast port
-		Hops          uint8  `default:"10"`           // mcast hop
-		Key           string `required:"true"`
-		CipherWindow  uint16 `default:"120"` // Time Window in seconds to avoid replay attacks
-		AliveTimer    uint16 `default:"60"`  // Time between two alive msg
-		XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
-	}{}
-	_configFile = "xaal.json"
-)
+// XaalConfig is a struct that describe the xAAL config
+type XaalConfig struct {
+	StackVersion  string `default:"0.5"`          // protocol version
+	Address       string `default:"224.0.29.200"` // mcast address
+	Port          uint16 `default:"1235"`         // mcast port
+	Hops          uint8  `default:"10"`           // mcast hop
+	Key           string `required:"true"`
+	CipherWindow  uint16 `default:"120"` // Time Window in seconds to avoid replay attacks
+	AliveTimer    uint16 `default:"60"`  // Time between two alive msg
+	XAALBcastAddr string `default:"00000000-0000-0000-0000-000000000000"`
+}
+
+var _config XaalConfig
 
 func init() {
 }
 
 // Init : init the engine using the config
-func Init() {
-	configManagerXAAL, err := configmanager.Init(_configFile, &_config)
-	if err != nil {
-		logger.Module("engine").WithError(err).WithField("filename", _configFile).Fatal()
-	}
-
-	if err := configManagerXAAL.Load(); err != nil {
-		logger.Module("engine").WithError(err).Fatal()
-	}
-
-	messagefactory.Init(_config.StackVersion, _config.Key, _config.CipherWindow)
-	device.Init(_config.XAALBcastAddr, _config.AliveTimer)
+func Init(config XaalConfig) {
+	messagefactory.Init(config.StackVersion, config.Key, config.CipherWindow)
+	device.Init(config.XAALBcastAddr, config.AliveTimer)
 	_rxHandlers = append(_rxHandlers, handleRequest)          // message receive workflow
-	network.Init(_config.Address, _config.Port, _config.Hops) // Start network
+	network.Init(config.Address, config.Port, config.Hops) // Start network
 }
 
 /*******************
