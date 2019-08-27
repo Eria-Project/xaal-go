@@ -26,9 +26,10 @@ func init() {
 
 // Init : init the engine using the config
 func Init(config XaalConfig) {
+	_config = config
 	messagefactory.Init(config.StackVersion, config.Key, config.CipherWindow)
 	device.Init(config.XAALBcastAddr, config.AliveTimer)
-	_rxHandlers = append(_rxHandlers, handleRequest)          // message receive workflow
+	_rxHandlers = append(_rxHandlers, handleRequest)       // message receive workflow
 	network.Init(config.Address, config.Port, config.Hops) // Start network
 }
 
