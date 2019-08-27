@@ -1,10 +1,10 @@
 package engine
 
 import (
+	"github.com/project-eria/logger"
 	"github.com/project-eria/xaal-go/device"
 	"github.com/project-eria/xaal-go/messagefactory"
 	"github.com/project-eria/xaal-go/network"
-	"github.com/project-eria/logger"
 )
 
 // XaalConfig is a struct that describe the xAAL config
