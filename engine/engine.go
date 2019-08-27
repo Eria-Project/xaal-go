@@ -7,12 +7,6 @@ import (
 	"github.com/project-eria/logger"
 )
 
-// GitCommit is a placeholder for the engine current git commit hash
-var GitCommit = "-"
-
-// Timestamp is a placeholder for the build date
-var Timestamp = "-"
-
 // XaalConfig is a struct that describe the xAAL config
 type XaalConfig struct {
 	StackVersion  string `default:"0.5"`          // protocol version
