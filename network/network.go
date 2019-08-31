@@ -30,26 +30,26 @@ func Init(address string, port uint16, hops uint8) {
 
 /*Connect : connect the network */
 func Connect() {
-	logger.Module("network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connecting...")
+	logger.Module("xaal:network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connecting...")
 
 	// open socket (connection)
 	context := fmt.Sprintf("%s:%d", _address, _port)
 	_conn, err := reuseport.ListenPacket("udp4", context)
 	if err != nil {
-		logger.Module("network").WithError(err).WithFields(logger.Fields{"addr": _address, "port": _port}).Fatal("Cannot open UDP4 socket")
+		logger.Module("xaal:network").WithError(err).WithFields(logger.Fields{"addr": _address, "port": _port}).Fatal("Cannot open UDP4 socket")
 	}
-	logger.Module("network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connected")
+	logger.Module("xaal:network").WithFields(logger.Fields{"addr": _address, "port": _port}).Info("Connected")
 
 	// join multicast address
-	logger.Module("network").WithField("multicastaddr", _address).Info("Joining Multicast Group...")
+	logger.Module("xaal:network").WithField("multicastaddr", _address).Info("Joining Multicast Group...")
 	_pc = ipv4.NewPacketConn(_conn)
 
 	// Set Multicat on Loopback
 	if loop, err := _pc.MulticastLoopback(); err == nil {
-		logger.Module("network").WithField("status", loop).Debug("MulticastLoopback")
+		logger.Module("xaal:network").WithField("status", loop).Debug("MulticastLoopback")
 		if !loop {
 			if err := _pc.SetMulticastLoopback(true); err != nil {
-				logger.Module("network").WithError(err).Warn("SetMulticastLoopback")
+				logger.Module("xaal:network").WithError(err).Warn("SetMulticastLoopback")
 			}
 		}
 	}
@@ -59,14 +59,14 @@ func Connect() {
 	_ifaces = getIPv4Interfaces()
 	for _, iface := range _ifaces {
 		if err := _pc.JoinGroup(iface, _dst); err != nil {
-			logger.Module("network").WithError(err).WithField("iface", iface.Name).Warn("Cannot join multicat group")
+			logger.Module("xaal:network").WithError(err).WithField("iface", iface.Name).Warn("Cannot join multicat group")
 		}
-		logger.Module("network").WithField("iface", iface.Name).Info("Joined Multicast group")
+		logger.Module("xaal:network").WithField("iface", iface.Name).Info("Joined Multicast group")
 	}
 
 	if err := _pc.SetControlMessage(ipv4.FlagTTL|ipv4.FlagSrc|ipv4.FlagDst|ipv4.FlagInterface, true); err != nil {
 		_conn.Close()
-		logger.Module("network").WithError(err).Fatal("Cannot set connection flags")
+		logger.Module("xaal:network").WithError(err).Fatal("Cannot set connection flags")
 	}
 	//	_pc.SetTTL(128)
 	_stateConnected = true
@@ -77,7 +77,7 @@ func Connect() {
 		for {
 			select {
 			case <-tick:
-				//				logger.Module("network").Tracef("Check network => %+v %+v", _pc, _pc.PacketConn)
+				//				logger.Module("xaal:network").Tracef("Check network => %+v %+v", _pc, _pc.PacketConn)
 			}
 		}
 	}()
@@ -87,7 +87,7 @@ func getIPv4Interfaces() map[int]*net.Interface {
 	candidateInterfaces := map[int]*net.Interface{}
 	ifaces, _ := net.Interfaces()
 	for i, iface := range ifaces {
-		logger.Module("network").WithFields(logger.Fields{"iface": iface.Name, "flags": iface.Flags}).Trace("Interface")
+		logger.Module("xaal:network").WithFields(logger.Fields{"iface": iface.Name, "flags": iface.Flags}).Trace("Interface")
 
 		if iface.Flags&net.FlagUp == 0 {
 			continue // interface down
@@ -95,7 +95,7 @@ func getIPv4Interfaces() map[int]*net.Interface {
 		if iface.Flags&net.FlagLoopback != 0 || iface.Flags&net.FlagMulticast != 0 { // Loopback or Broadcast
 			addrs, err := iface.Addrs()
 			if err != nil {
-				logger.Module("network").WithError(err).Fatal("Cannot list iface addresses")
+				logger.Module("xaal:network").WithError(err).Fatal("Cannot list iface addresses")
 			}
 			if len(addrs) > 0 {
 				for _, addr := range addrs {
@@ -112,7 +112,7 @@ func getIPv4Interfaces() map[int]*net.Interface {
 					if ip.To4() == nil {
 						continue // not an ipv4 address
 					}
-					logger.Module("network").WithFields(logger.Fields{"iface": iface.Name, "ip": ip.String()}).Info("Found interface")
+					logger.Module("xaal:network").WithFields(logger.Fields{"iface": iface.Name, "ip": ip.String()}).Info("Found interface")
 					candidateInterfaces[iface.Index] = &(ifaces[i]) // https://blogger.omri.io/golang-sneaky-range-pointer/
 				}
 			}
@@ -123,7 +123,7 @@ func getIPv4Interfaces() map[int]*net.Interface {
 
 /*Disconnect : Disconnect the network */
 func Disconnect() {
-	logger.Module("network").Info("Disconnecting socket")
+	logger.Module("xaal:network").Info("Disconnecting socket")
 	_stateConnected = false
 	_conn.Close()
 }
@@ -134,7 +134,7 @@ func IsConnected() bool {
 }
 
 func receive() ([]byte, error) {
-	logger.Module("network").Trace("UDP: reading bytes...")
+	logger.Module("xaal:network").Trace("UDP: reading bytes...")
 	packt := make([]byte, 10000)
 	n, cm, _, err := _pc.ReadFrom(packt)
 	if err != nil {
@@ -143,7 +143,7 @@ func receive() ([]byte, error) {
 	// make a copy because we will overwrite buf
 	b := make([]byte, n)
 	copy(b, packt)
-	logger.Module("network").WithFields(logger.Fields{"size": n, "from": cm.Src, "via": _ifaces[cm.IfIndex].Name, "to": cm.Dst}).Trace("UDP: recv bytes")
+	logger.Module("xaal:network").WithFields(logger.Fields{"size": n, "from": cm.Src, "via": _ifaces[cm.IfIndex].Name, "to": cm.Dst}).Trace("UDP: recv bytes")
 
 	return packt[:n], nil // We resize packt to the received lenght
 }
@@ -156,14 +156,14 @@ func send(data []byte) error {
 	)
 	n, err = _pc.WriteTo(data, nil, dst)
 	if err != nil {
-		logger.Module("network").WithError(err).Error("UDP: Error writing connection, trying localhost")
+		logger.Module("xaal:network").WithError(err).Error("UDP: Error writing connection, trying localhost")
 		dst = &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: int(_port)}
 		n, err = _pc.WriteTo(data, nil, dst)
 		if err != nil {
 			return fmt.Errorf("UDP: WriteTo: error %v", err)
 		}
 	}
-	logger.Module("network").WithFields(logger.Fields{"size": n, "to": dst.IP, "via": _pc.PacketConn.LocalAddr()}).Trace("UDP: send bytes")
+	logger.Module("xaal:network").WithFields(logger.Fields{"size": n, "to": dst.IP, "via": _pc.PacketConn.LocalAddr()}).Trace("UDP: send bytes")
 	return nil
 }
 
@@ -171,7 +171,7 @@ func send(data []byte) error {
 func GetData() []byte {
 	data, err := receive()
 	if err != nil {
-		logger.Module("network").WithError(err).Error("Cannot receive data")
+		logger.Module("xaal:network").WithError(err).Error("Cannot receive data")
 	}
 	return data
 }
@@ -180,6 +180,6 @@ func GetData() []byte {
 func SendData(data []byte) {
 	err := send(data)
 	if err != nil {
-		logger.Module("network").WithError(err).Fatal("Cannot send data")
+		logger.Module("xaal:network").WithError(err).Fatal("Cannot send data")
 	}
 }

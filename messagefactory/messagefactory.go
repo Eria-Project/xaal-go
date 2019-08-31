@@ -36,7 +36,7 @@ func Init(stackVersion string, key string, cipherWindow uint16) {
 	var err error
 	_cipherKey, err = hex.DecodeString(key) // key encode / decode message built from passphrase
 	if err != nil {
-		logger.Module("messagefactory").WithError(err).Fatal("Cannot decode cipher key")
+		logger.Module("xaal:messagefactory").WithError(err).Fatal("Cannot decode cipher key")
 	}
 }
 

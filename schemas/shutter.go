@@ -43,24 +43,24 @@ func ShutterPosition(addr string) *device.Device {
 
 func defaultUp(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Up the shutter"""
-	logger.Module("schema-shutter").Debug("defaultUp()")
+	logger.Module("xaal:schema-shutter").Debug("defaultUp()")
 	return nil
 }
 
 func defaultDown(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Down the shutter"""
-	logger.Module("schema-shutter").Debug("defaultDown()")
+	logger.Module("xaal:schema-shutter").Debug("defaultDown()")
 	return nil
 }
 
 func defaultStop(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Stop ongoing action of the shutter"""
-	logger.Module("schema-shutter").Debug("defaultStop()")
+	logger.Module("xaal:schema-shutter").Debug("defaultStop()")
 	return nil
 }
 
 func defaultPosition(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Change the position of the shutter"""
-	logger.Module("schema-shutter").WithField("target", args["target"]).Debug("defaultPosition()")
+	logger.Module("xaal:schema-shutter").WithField("target", args["target"]).Debug("defaultPosition()")
 	return nil
 }

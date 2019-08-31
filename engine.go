@@ -1,4 +1,4 @@
-package engine
+package xaal
 
 import (
 	"github.com/project-eria/logger"
@@ -51,7 +51,7 @@ func start() {
 
 // Stop all mainloops
 func Stop() {
-	logger.Module("engine").Info("Stopping...")
+	logger.Module("xaal:engine").Info("Stopping...")
 	close(_queueMsgTx)
 	_tickerAlive.Stop() // Stop Alives
 	_running <- false
@@ -71,5 +71,5 @@ func Run() {
 	// Process Alives
 	go processAlives(_config.AliveTimer)
 	<-_running // Listen the channel to stop
-	logger.Module("engine").Info("Stopped")
+	logger.Module("xaal:engine").Info("Stopped")
 }

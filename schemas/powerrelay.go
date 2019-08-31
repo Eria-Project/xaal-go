@@ -23,12 +23,12 @@ func Powerrelay(addr string) *device.Device {
 
 func defaultRelayOn(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Switch on the relay"""
-	logger.Module("schema-powerrelay").Debug("defaultRelayOn()")
+	logger.Module("xaal:schema-powerrelay").Debug("defaultRelayOn()")
 	return nil
 }
 
 func defaultRelayOff(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Switch off the relay"""
-	logger.Module("schema-powerrelay").Debug("defaultRelayOff()")
+	logger.Module("xaal:schema-powerrelay").Debug("defaultRelayOff()")
 	return nil
 }

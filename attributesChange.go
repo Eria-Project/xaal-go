@@ -1,5 +1,5 @@
-// Package engine : Attributes changes
-package engine
+// Package xaal : Attributes changes
+package xaal
 
 import (
 	"github.com/project-eria/xaal-go/device"

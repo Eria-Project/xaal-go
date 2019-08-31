@@ -23,12 +23,12 @@ func Lamp(addr string) *device.Device {
 
 func defaultOn(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Switch on the lamp"""
-	logger.Module("schema-lamp").Debug("defaultOn()")
+	logger.Module("xaal:schema-lamp").Debug("defaultOn()")
 	return nil
 }
 
 func defaultOff(d *device.Device, args map[string]interface{}) map[string]interface{} {
 	// """Switch off the lamp"""
-	logger.Module("schema-lamp").Debug("defaultOff()")
+	logger.Module("xaal:schema-lamp").Debug("defaultOff()")
 	return nil
 }

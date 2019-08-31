@@ -1,5 +1,5 @@
-// Package engine : Timers
-package engine
+// Package xaal : Timers
+package xaal
 
 import (
 	"errors"

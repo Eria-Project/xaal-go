@@ -1,5 +1,5 @@
-// Package engine : Alive messages
-package engine
+// Package xaal : Alive messages
+package xaal
 
 import (
 	"time"
@@ -19,9 +19,9 @@ func SendAlive(dev *device.Device) {
 	timeout := dev.GetTimeout()
 	msg, err := messagefactory.BuildAliveFor(dev, timeout)
 	if err != nil {
-		logger.Module("engine").WithError(err).Error("Cannot build alive message")
+		logger.Module("xaal:engine").WithError(err).Error("Cannot build alive message")
 	} else {
-		logger.Module("engine").WithField("from", dev.Address).Debug("Sending alive message")
+		logger.Module("xaal:engine").WithField("from", dev.Address).Debug("Sending alive message")
 		_queueMsgTx <- msg
 	}
 }
@@ -38,7 +38,7 @@ func SendIsAlive(dev *device.Device, devTypes string) {
 	body["devTypes"] = devTypes
 	msg, err := messagefactory.BuildMsg(dev, []string{}, "request", "isAlive", body)
 	if err != nil {
-		logger.Module("engine").WithError(err).Error("Cannot build isAlive message")
+		logger.Module("xaal:engine").WithError(err).Error("Cannot build isAlive message")
 	} else {
 		_queueMsgTx <- msg
 	}
@@ -48,10 +48,10 @@ func SendIsAlive(dev *device.Device, devTypes string) {
 func processAlives(aliveTimer uint16) {
 	_tickerAlive = time.NewTicker(time.Duration(aliveTimer) * time.Second)
 	go func() {
-		logger.Module("engine").Debug("Send initial alive messages")
+		logger.Module("xaal:engine").Debug("Send initial alive messages")
 		sendAlives()
 		for range _tickerAlive.C {
-			logger.Module("engine").Debug("Send alive messages")
+			logger.Module("xaal:engine").Debug("Send alive messages")
 			sendAlives()
 		}
 	}()

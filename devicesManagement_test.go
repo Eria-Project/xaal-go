@@ -1,5 +1,5 @@
-// Package engine : Devices Management
-package engine
+// Package xaal : Devices Management
+package xaal
 
 import (
 	"testing"
