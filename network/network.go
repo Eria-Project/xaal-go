@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/project-eria/logger"
+	logger "github.com/project-eria/eria-logger"
 
 	reuseport "github.com/libp2p/go-reuseport"
 	"golang.org/x/net/ipv4"

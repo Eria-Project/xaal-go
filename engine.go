@@ -1,7 +1,7 @@
 package xaal
 
 import (
-	"github.com/project-eria/logger"
+	logger "github.com/project-eria/eria-logger"
 	"github.com/project-eria/xaal-go/device"
 	"github.com/project-eria/xaal-go/messagefactory"
 	"github.com/project-eria/xaal-go/network"

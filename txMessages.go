@@ -2,11 +2,10 @@
 package xaal
 
 import (
+	logger "github.com/project-eria/eria-logger"
 	"github.com/project-eria/xaal-go/device"
 	"github.com/project-eria/xaal-go/messagefactory"
 	"github.com/project-eria/xaal-go/network"
-
-	"github.com/project-eria/logger"
 )
 
 var _queueMsgTx = make(chan []byte)

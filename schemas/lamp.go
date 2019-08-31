@@ -3,7 +3,7 @@ package schemas
 import (
 	"github.com/project-eria/xaal-go/device"
 
-	"github.com/project-eria/logger"
+	logger "github.com/project-eria/eria-logger"
 )
 
 // Lamp : Simple switch lamp
