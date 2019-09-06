@@ -5,7 +5,7 @@ import (
 )
 
 // Basic : Generic schema for any devices
-func Basic(addr string) *device.Device {
-	dev, _ := device.New("basic.basic", addr)
-	return dev
+func Basic(addr string) (*device.Device, error) {
+	dev, err := device.New("basic.basic", addr)
+	return dev, err
 }

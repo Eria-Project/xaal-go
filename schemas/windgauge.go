@@ -5,8 +5,9 @@ import (
 )
 
 // Windgauge : Simple windgauge
-func Windgauge(addr string) *device.Device {
-	dev, _ := device.New("windgauge.basic", addr)
+func Windgauge(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("windgauge.basic")
 
 	// -- Attributes --
 	// Strength of the wind
@@ -18,5 +19,5 @@ func Windgauge(addr string) *device.Device {
 	// Direction of gusts
 	dev.NewAttribute("gustAngle", nil)
 
-	return dev
+	return dev, err
 }

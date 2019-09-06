@@ -5,11 +5,12 @@ import (
 )
 
 // Barometer : Simple barometer
-func Barometer(addr string) *device.Device {
-	dev, _ := device.New("barometer.basic", addr)
+func Barometer(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("barometer.basic")
 
 	// -- Attributes --
 	// Temperature
 	dev.NewAttribute("pressure", nil)
-	return dev
+	return dev, err
 }

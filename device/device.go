@@ -67,7 +67,7 @@ func New(devType string, address string) (*Device, error) {
 		Methods: map[string]*Method{
 			"getAttributes": &Method{
 				Function: getAttributes,
-				Args:     []string{"attributes"},
+				Args:     &[]string{"attributes"},
 			},
 			"getDescription": &Method{
 				Function: getDescription,

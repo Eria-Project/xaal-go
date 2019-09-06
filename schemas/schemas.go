@@ -12,19 +12,21 @@ func DeviceFromType(schema string, addr string) (*device.Device, error) {
 	schema = strings.ToLower(schema)
 	switch schema {
 	case "lamp.basic":
-		return Lamp(addr), nil
+		return Lamp(addr)
+	case "lamp.dimmer":
+		return LampDimmer(addr)
 	case "shutter.basic":
-		return Shutter(addr), nil
+		return Shutter(addr)
 	case "shutter.position":
-		return ShutterPosition(addr), nil
+		return ShutterPosition(addr)
 	case "watermeter.basic":
-		return Watermeter(addr), nil
+		return Watermeter(addr)
 	case "powerrelay.basic":
-		return Powerrelay(addr), nil
+		return Powerrelay(addr)
 	case "switch.basic":
-		return Switch(addr), nil
+		return Switch(addr)
 	case "thermometer.basic":
-		return Thermometer(addr), nil
+		return Thermometer(addr)
 	}
 	return nil, fmt.Errorf("Device type '%s' not implemented", schema)
 }
@@ -199,37 +201,6 @@ def lamp_cie1931(addr=None):
     dev.add_method('dim',default_dim)
     dev.add_method('xy',default_xy)
     dev.add_method('saturation',default_saturation)
-
-    return dev
-
-#=====================================================================
-def lamp_dimmer(addr=None):
-    """Lamp with a dimmer"""
-    if (addr==None):addr = tools.get_random_uuid()
-    dev = Device('lamp.dimmer',addr)
-
-    # -- Attributes --
-    # State of the lamp
-    dev.new_attribute('light')
-    # Level of the dimmer
-    dev.new_attribute('dimmer')
-
-    # -- Methods --
-    def default_on():
-        """Switch on the lamp"""
-        logger.info("default_on()")
-
-    def default_off():
-        """Switch off the lamp"""
-        logger.info("default_off()")
-
-    def default_dim(_target):
-        """Change the dimmer of the lamp"""
-        logger.info("default_dim(target=[%s],)" % (_target))
-
-    dev.add_method('on',default_on)
-    dev.add_method('off',default_off)
-    dev.add_method('dim',default_dim)
 
     return dev
 

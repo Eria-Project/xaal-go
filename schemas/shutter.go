@@ -6,38 +6,42 @@ import (
 )
 
 // Shutter returns a simple shutter
-func Shutter(addr string) *device.Device {
-	dev, _ := device.New("shutter.basic", addr)
+func Shutter(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("shutter.basic")
 
 	// -- Attributes --
-	// Ongoing action of the shutter
+	// Ongoing action of the shutter (string: up/down/stop)
 	dev.NewAttribute("action", nil)
 
 	// -- Methods --
-	dev.AddMethod("up", defaultUp)
-	dev.AddMethod("down", defaultDown)
-	dev.AddMethod("stop", defaultStop)
+	// Up: Up the shutter
+	dev.AddMethod("up", defaultUp, nil)
+	// Down: Down the shutter
+	dev.AddMethod("down", defaultDown, nil)
+	// Stop: Stop ongoing action of the shutter
+	dev.AddMethod("stop", defaultStop, nil)
 
-	return dev
+	return dev, err
 }
 
 // ShutterPosition returns a shutter with a position managment
-func ShutterPosition(addr string) *device.Device {
-	dev, _ := device.New("shutter.position", addr)
+func ShutterPosition(addr string) (*device.Device, error) {
+	// Extend "shutter.basic"
+	dev, err := Shutter(addr)
+	dev.SetDevType("shutter.position")
 
 	// -- Attributes --
-	// Ongoing action of the shutter
-	dev.NewAttribute("action", nil)
-	// Level of aperture of the shutter
+	// Level of aperture of the shutter (int percentage unit:%, minimum:0, maximum:100)
 	dev.NewAttribute("position", nil)
 
 	// -- Methods --
-	dev.AddMethod("up", defaultUp)
-	dev.AddMethod("down", defaultDown)
-	dev.AddMethod("stop", defaultStop)
-	dev.AddMethod("position", defaultPosition)
+	// Position: Change the position of the shutter
+	// params:
+	// - target: "Target of the position" (int percentage unit:%, minimum:0, maximum:100)
+	dev.AddMethod("position", defaultPosition, &[]string{"target"})
 
-	return dev
+	return dev, err
 }
 
 func defaultUp(d *device.Device, args map[string]interface{}) map[string]interface{} {

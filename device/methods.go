@@ -11,18 +11,30 @@ type Function func(*Device, map[string]interface{}) map[string]interface{}
 // Method : xAAL methods
 type Method struct {
 	Function Function
-	Args     []string
+	Args     *[]string
 }
 
 // AddMethod : Associate a new method
-func (d *Device) AddMethod(name string, f Function) (*Method, error) {
+func (d *Device) AddMethod(name string, f Function, args *[]string) (*Method, error) {
 	if name == "" {
 		return nil, errors.New("No name has been provided for the method")
 	}
 	d.Methods[name] = &Method{
 		Function: f,
+		Args:     args,
 	}
 	return d.Methods[name], nil
+}
+
+// HandleMethod : Replace the method handler
+// TODO Allow to have more than 1 handler
+func (d *Device) HandleMethod(name string, f Function) error {
+	method, ok := d.Methods[name]
+	if !ok {
+		return fmt.Errorf("Method %s not found", name)
+	}
+	method.Function = f
+	return nil
 }
 
 // GetMethods : return the list of device methods

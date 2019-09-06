@@ -107,19 +107,19 @@ func runAction(msg *message.Message, dev *device.Device) map[string]interface{} 
 	if _, in := methods[msg.Header.Action]; in {
 		method := methods[msg.Header.Action]
 		if len(msg.Body) > 0 {
-			for _, p := range method.Args {
+			for _, p := range *method.Args {
 				if value, in := msg.Body[p]; in {
 					params[p] = value
 				} else {
-					logger.Module("xaal:engine").WithFields(logger.Fields{"parameter": p, "action": msg.Header.Action}).Info("Wrong method parameter for action")
+					logger.Module("xaal:engine").WithFields(logger.Fields{"parameter": p, "action": msg.Header.Action}).Warn("Wrong method parameter for action")
 				}
 			}
 		}
 		result = method.Function(dev, params)
 		//	 except :
 		//		raise XAALError("Error in method:%s params:%s" % (msg.action,params))
+	} else {
+		logger.Module("xaal:engine").WithFields(logger.Fields{"device": dev, "action": msg.Header.Action}).Warn("Method for device not found")
 	}
-	//   else:
-	//     raise XAALError("Method %s not found" % msg.action)
 	return result
 }

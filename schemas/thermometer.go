@@ -5,11 +5,12 @@ import (
 )
 
 // Thermometer : Simple thermometer
-func Thermometer(addr string) *device.Device {
-	dev, _ := device.New("thermometer.basic", addr)
+func Thermometer(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("thermometer.basic")
 
 	// -- Attributes --
-	// Temperature
+	// Temperature (float)
 	dev.NewAttribute("temperature", nil)
-	return dev
+	return dev, err
 }

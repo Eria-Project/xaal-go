@@ -5,12 +5,13 @@ import (
 )
 
 // Gateway : Simple gateway that manage physical devices
-func Gateway(addr string) *device.Device {
-	dev, _ := device.New("gateway.basic", addr)
+func Gateway(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("gateway.basic")
 
 	// -- Attributes --
 	// Embeded devices
 	dev.NewAttribute("embedded", nil)
 
-	return dev
+	return dev, err
 }

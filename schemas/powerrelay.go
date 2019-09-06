@@ -6,18 +6,19 @@ import (
 )
 
 // Powerrelay returns a simple power relay device
-func Powerrelay(addr string) *device.Device {
-	dev, _ := device.New("powerrelay.basic", addr)
+func Powerrelay(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("powerrelay.basic")
 
 	// -- Attributes --
 	// State of the relay
 	dev.NewAttribute("power", nil)
 
 	// -- Methods --
-	dev.AddMethod("on", defaultRelayOn)
-	dev.AddMethod("off", defaultRelayOff)
+	dev.AddMethod("on", defaultRelayOn, nil)
+	dev.AddMethod("off", defaultRelayOff, nil)
 
-	return dev
+	return dev, err
 }
 
 func defaultRelayOn(d *device.Device, args map[string]interface{}) map[string]interface{} {

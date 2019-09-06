@@ -5,12 +5,13 @@ import (
 )
 
 // Watermeter : Simple watermeter
-func Watermeter(addr string) *device.Device {
-	dev, _ := device.New("watermeter.basic", addr)
+func Watermeter(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("watermeter.basic")
 
 	// -- Attributes --
 	// Liter
 	dev.NewAttribute("liters", nil)
 	dev.NewAttribute("timestamp", nil)
-	return dev
+	return dev, err
 }

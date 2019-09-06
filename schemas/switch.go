@@ -5,12 +5,13 @@ import (
 )
 
 // Switch : Simple switch button device
-func Switch(addr string) *device.Device {
-	dev, _ := device.New("switch.basic", addr)
+func Switch(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("switch.basic")
 
 	// -- Attributes --
 	// State of the switch
 	dev.NewAttribute("position", nil)
 
-	return dev
+	return dev, err
 }

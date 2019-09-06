@@ -5,11 +5,12 @@ import (
 )
 
 // Hygrometer : Simple hygrometer
-func Hygrometer(addr string) *device.Device {
-	dev, _ := device.New("hygrometer.basic", addr)
+func Hygrometer(addr string) (*device.Device, error) {
+	dev, err := Basic(addr)
+	dev.SetDevType("hygrometer.basic")
 
 	// -- Attributes --
 	// Temperature
 	dev.NewAttribute("humidity", nil)
-	return dev
+	return dev, err
 }
