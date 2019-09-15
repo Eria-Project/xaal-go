@@ -66,7 +66,7 @@ func SendNotification(dev *device.Device, action string, body map[string]interfa
 	if err != nil {
 		logger.Module("xaal:engine").WithError(err).Error("Cannot build notify message")
 	} else {
-		logger.Module("xaal:engine").WithFields(logger.Fields{"action": action, "from": dev.Address}).Debug("Sending notify message")
+		logger.Module("xaal:engine").WithFields(logger.Fields{"action": action, "from": dev.Address, "body": body}).Debug("Sending notify message")
 		_queueMsgTx <- msg
 	}
 }

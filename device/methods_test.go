@@ -18,6 +18,7 @@ func TestDevice_AddMethod(t *testing.T) {
 	type args struct {
 		name string
 		f    Function
+		a    *[]string
 	}
 	tests := []struct {
 		name    string
@@ -27,9 +28,18 @@ func TestDevice_AddMethod(t *testing.T) {
 		want    *Device
 	}{
 		{
-			name:    "Correct",
+			name:    "Correct, no args",
 			fields:  fields{Methods: make(map[string]*Method)},
-			args:    args{name: "TestMethod", f: methodTest},
+			args:    args{name: "TestMethod", f: methodTest, a: nil},
+			wantErr: false,
+			want: &Device{
+				Methods: map[string]*Method{},
+			},
+		},
+		{
+			name:    "Correct, with args",
+			fields:  fields{Methods: make(map[string]*Method)},
+			args:    args{name: "TestMethod", f: methodTest, a: &[]string{"arg1"}},
 			wantErr: false,
 			want: &Device{
 				Methods: map[string]*Method{},
@@ -38,7 +48,7 @@ func TestDevice_AddMethod(t *testing.T) {
 		{
 			name:    "Missing name",
 			fields:  fields{Methods: make(map[string]*Method)},
-			args:    args{name: "", f: methodTest},
+			args:    args{name: "", f: methodTest, a: nil},
 			wantErr: true,
 		},
 	}
@@ -47,7 +57,7 @@ func TestDevice_AddMethod(t *testing.T) {
 			d := &Device{
 				Methods: tt.fields.Methods,
 			}
-			method, err := d.AddMethod(tt.args.name, tt.args.f)
+			method, err := d.AddMethod(tt.args.name, tt.args.f, tt.args.a)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Device.AddMethod() error = %v, wantErr %v", err, tt.wantErr)
 			} else if tt.wantErr == false {

@@ -1,7 +1,6 @@
 package device
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/project-eria/xaal-go/utils"
@@ -54,7 +53,6 @@ func TestNew(t *testing.T) {
 				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			fmt.Printf("New() = %v, want %v", got, tt.want)
 			if !tt.wantErr && (got.Address != tt.want.Address || got.DevType != tt.want.DevType) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}

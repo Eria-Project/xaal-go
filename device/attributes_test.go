@@ -100,3 +100,71 @@ func TestDevice_NewAttribute(t *testing.T) {
 		})
 	}
 }
+func TestDevice_getAttributes(t *testing.T) {
+	type args struct {
+		d    *Device
+		args map[string]interface{}
+	}
+	device := Device{
+		Attributes: map[string]*Attribute{
+			"a": &Attribute{
+				Name:  "a",
+				Value: 1,
+			},
+			"b": &Attribute{
+				Name:  "b",
+				Value: "y",
+			},
+		},
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "Nil args",
+			args: args{d: &device, args: nil},
+			want: map[string]interface{}{
+				"a": 1,
+				"b": "y",
+			},
+		},
+		{
+			name: "Empty args",
+			args: args{d: &device, args: make(map[string]interface{})},
+			want: map[string]interface{}{
+				"a": 1,
+				"b": "y",
+			},
+		},
+		{
+			name: "Empty 'attributes' array arg",
+			args: args{d: &device, args: map[string]interface{}{
+				"attributes": []string{},
+			}},
+			want: map[string]interface{}{
+				"a": 1,
+				"b": "y",
+			},
+		},
+		{
+			name: "Filter attribute 'a' only",
+			args: args{d: &device, args: map[string]interface{}{
+				"attributes": []string{"a"},
+			}},
+			want: map[string]interface{}{
+				"a": 1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := getAttributes(tt.args.d, tt.args.args)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

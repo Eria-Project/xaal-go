@@ -3,6 +3,8 @@ package device
 import (
 	"errors"
 	"fmt"
+
+	logger "github.com/project-eria/eria-logger"
 )
 
 // Attribute : xAAL internal attributes
@@ -57,7 +59,6 @@ def get_attribute(self,name):
 */
 
 // default public methods
-
 func getDescription(d *Device, args map[string]interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
 	if d.VendorID != "" {
@@ -98,19 +99,21 @@ func getDescription(d *Device, args map[string]interface{}) map[string]interface
 // with specific error code and with value = suspicious/stale/cached
 func getAttributes(d *Device, args map[string]interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
-	/* TODO
-	dev_attr = {attr.name: attr for attr in self.__attributes}
-	if _attributes:
-		"""Process attributes filter"""
-		for attr in _attributes:
-			if attr in dev_attr.keys():
-				result.update({dev_attr[attr].name: dev_attr[attr].value})
-			else:
-				logger.debug("Attribute %s not found" % attr)
-	else:
-		"""Process all attributes"""
-		for attr in dev_attr.values():
-			result.update({attr.name: attr.value})
-	*/
+	attributes, in := args["attributes"]
+	if in && len(attributes.([]string)) > 0 {
+		// Process attributes filter
+		for _, name := range attributes.([]string) {
+			if attr, in := d.Attributes[name]; in {
+				result[name] = attr.Value
+			} else {
+				logger.Module("xaal:device").WithField("name", name).Debug("Attribute not found")
+			}
+		}
+	} else {
+		// Process all attributes
+		for name, attr := range d.Attributes {
+			result[name] = attr.Value
+		}
+	}
 	return result
 }
